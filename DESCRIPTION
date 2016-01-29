@@ -1,10 +1,39 @@
 Package: rblm
 Type: Package
-Title: What the Package Does (Title Case)
-Version: 0.1
+Title: Estimation procedures in Bonhomme Lamadon Menresa
+Version: 0.2
 Date: 2016-01-28
-Author: Who wrote it
-Maintainer: Who to complain to <yourfault@somewhere.net>
-Description: More about what it does (maybe more than one line)
-License: What license is it under?
+Authors@R: c( person("Stephane", "Bonhomme", email = "sbonhomme@uchicago.edu",
+    role = "aut"), person("Thibaut", "Lamadon", email = "lamadon@uchicago.edu",
+    role = "cre"), person("Elena", "Manresa", email = "manresa@mit.edu", role =
+    "aut"))
+Maintainer: Thibaut Lamadon <thibaut.lamadon@gmail.com>
+Description: Estimates non parametric models of the labor market. See paper for
+    more information.
+License: MIT
 LazyData: TRUE
+Depends:
+    R (>= 3.0.0),
+    Matrix,
+    SparseM,
+    gtools,
+    reshape,
+    splines,
+    quantreg,
+    ggplot2,
+    nnls,
+    data.table,
+    FactoClass,
+    SDMTools,
+    lpSolve,
+    reshape2,
+    stringr,
+    limSolve,
+    MASS,
+    quadprog,
+    gridExtra,
+    foreign,
+    coneproj
+Suggests:
+    knitr,
+    testthat
