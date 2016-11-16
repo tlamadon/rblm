@@ -5,7 +5,7 @@ model = model.mini2.new(10,serial = F)
 NNs   = array(300000/model$nf,model$nf)
 sdata = model.mini2.simulate.stayers(model,NNs)
 jdata = model.mini2.simulate.movers(model,NNm)
-
+#
 # randomly assign firm IDs
 sdata[,f1:=j1 + model$nf*(sample.int(.N/50,.N,replace=T)-1),j1]
 sdata[,j1b:=j1]
