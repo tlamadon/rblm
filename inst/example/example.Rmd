@@ -91,6 +91,14 @@ kable(rbind(model$vdec$stats,res$vdec$stats),digits = 4) %>%
 ```
 
 
+And we can plot the resulting wage
+
+```{r}
+m2.mini.plotw(res)
+```
+
+
+
 # Extract all necesserary moments for off-line estimation
 
 ```{r}

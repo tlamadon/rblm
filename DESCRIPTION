@@ -33,7 +33,8 @@ Depends:
     quadprog,
     gridExtra,
     foreign,
-    futile.logger
+    futile.logger,
+    Hmisc
 Suggests:
     knitr,
     testthat
