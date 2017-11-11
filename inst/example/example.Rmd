@@ -1,0 +1,107 @@
+---
+title: "BLM example using simulated data"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+  toc: true
+toc_depth: 3
+toc_float:
+  collapsed: false
+smooth_scroll: false
+editor_options:
+  chunk_output_type: console
+---
+
+Simulating and estimating teh interacted model
+
+```{r,message=FALSE,warning=FALSE}
+require(rblm)
+require(knitr)
+require(kableExtra)
+options(knitr.table.format = "html") 
+```
+
+# Simulating a data set
+
+```{r}
+set.seed(43243123)
+model = m2.mini.new(10,serial = F,fixb=T)
+model$Ns   = array(300000/model$nf,model$nf)
+model$Nm   = 10*toeplitz(ceiling(seq(100,10,l=model$nf)))
+sdata = m2.mini.simulate.stayers(model,model$Ns)
+jdata = m2.mini.simulate.movers(model,model$Nm)
+
+# compute decomposition
+stayer_share = sum(model$Ns)/(sum(model$Ns)+sum(model$Nm))
+model$vdec   = m2.mini.vdec(model,1e6,stayer_share,"y1")
+
+# randomly assign firm IDs
+sdata <- sdata[,f1:=paste("F",j1 + model$nf*(sample.int(.N/50,.N,replace=T)-1),sep=""),j1]
+sdata <- sdata[,j1b:=j1]
+sdata <- sdata[,j1true := j1]
+jdata <- jdata[,j1true := j1][,j2true := j2]
+jdata <- jdata[,j1c:=j1]
+jdata <- jdata[,f1:=sample( unique(sdata[j1b==j1c,f1]) ,.N,replace=T),j1c]
+jdata <- jdata[,j2c:=j2]
+jdata <- jdata[,f2:=sample( unique(sdata[j1b==j2c,f1])  ,.N,replace=T),j2c]
+jdata$j2c=NULL
+jdata$j1c=NULL
+sdata$j1b=NULL
+
+# combine the movers and stayers, ad stands for all data:
+ad = list(sdata=sdata,jdata=jdata)
+
+# plot firm size distribution
+ggplot(ad$sdata[,.N,f1],aes(x=N)) + geom_histogram(binwidth=1)
+
+```
+
+# Clustering firms 
+
+We start by extracting the measures that will be used to cluster
+```{r}
+ms    = grouping.getMeasures(ad,"ecdf",Nw=20,y_var = "y1")
+# then we group we choose k=10
+grps  = grouping.classify.once(ms,k = 10,nstart = 1000,iter.max = 200,step=250)
+
+# finally we append the results to adata
+ad   = grouping.append(ad,grps$best_cluster,drop=T)
+
+# we can also check the classification
+ggplot(ad$sdata[,.N,list(j1,j1true)],aes(x=j1true,y=j1,size=N)) + geom_point()
+```
+
+In the previous command we tell rblm that we want to use the firm
+specific empirical measure "ecdf" with 20 points of supports and that
+the dependent variable is "y1". The firm identifier should be "f1".
+
+# Estimating the model 
+
+This is a relatively old code, we will be pushing an update extremely soon!
+
+```{r}
+res = m2.mini.estimate(ad$jdata,ad$sdata,model0 = model,method = "fixb")
+```
+
+We can show the decompositions next to each other:
+
+```{r}
+kable(rbind(model$vdec$stats,res$vdec$stats),digits = 4) %>%
+  kable_styling(bootstrap_options = c("striped", "bordered","condensed"), full_width = F)
+```
+
+
+# Extract all necesserary moments for off-line estimation
+
+```{r}
+mstats = ad$jdata[,list(m1=mean(y1),sd1=sd(y1),
+                         m2=mean(y2),sd2=sd(y2),
+                         v12 = cov(y1,y2),.N),list(j1,j2)]
+cstats = ad$sdata[,list(m1=mean(y1),sd1=sd(y1),
+                         m2=mean(y2),sd2=sd(y2),
+                         v12 = cov(y1,y2),.N),list(j1)]
+```
+
+
+
+

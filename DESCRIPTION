@@ -33,7 +33,6 @@ Depends:
     quadprog,
     gridExtra,
     foreign,
-    coneproj,
     futile.logger
 Suggests:
     knitr,

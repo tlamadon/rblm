@@ -1,11 +1,11 @@
 require(rblm)
 
 # ====== simulate some data ==========
-model = model.mini2.new(10,serial = F)
+model = m2.mini.new(10,serial = F)
 NNs   = array(300000/model$nf,model$nf)
 NNm   = array(30000/model$nf^2,c(model$nf,model$nf))
-sdata = model.mini2.simulate.stayers(model,NNs)
-jdata = model.mini2.simulate.movers(model,NNm)
+sdata = m2.mini.simulate.stayers(model,NNs)
+jdata = m2.mini.simulate.movers(model,NNm)
 
 # randomly assign firm IDs
 sdata[,f1:=paste("F",j1 + model$nf*(sample.int(.N/50,.N,replace=T)-1),sep=""),j1]
@@ -35,7 +35,7 @@ grps  = grouping.classify.once(ms,k = 10,nstart = 1000,iter.max = 200,step=100)
 ad   = grouping.append(ad,grps$best_cluster)
 
 # ==== ESTIMATE THE MODEL (OLD CODE) ========
-res = model.mini2.estimate(ad$jdata,ad$sdata,model0 = model)
+res = m2.mini.estimate(ad$jdata,ad$sdata,model0 = model,method = "prof")
 
 # ==== Extract all necesserary moments for off-line estimation ===
 mstats = ad$jdata[,list(m1=mean(y1),sd1=sd(y1),

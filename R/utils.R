@@ -121,5 +121,13 @@ cluster.order <- function(sim) {
   return(sim)
 }
 
+mvar <- function(x) {
+  if (length(x)<=1) return(0);
+  return(var(x))
+}
+mcov <- function(x,y) {
+  if (length(x)<=1) return(0);
+  return(cov(x,y))
+}
 
 

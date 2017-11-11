@@ -133,7 +133,7 @@ grouping.getMeasures <- function(sim,y_var="y1",measure="ecdf",Nw=40,model=NA,ex
   }
 
   # extract dep variable
-  sdata[,ydep := get(y_var)]
+  sdata <- sdata[,ydep := get(y_var)]
 
   N = sdata[,length(unique(f1))]
   qs = seq(1/(Nw+1),Nw/(Nw+1),l=Nw)
@@ -302,10 +302,10 @@ grouping.classify <- function(measures,ksupp = ceiling( (1:(60)^(1/1.3))^1.3),ns
 #' clusters firms based on their cross-sectional wage distributions
 #'
 #' @param sdata cross sectional data, needs a column j (firm id) and w (log wage)
-#' @param Nw number of points to use for wage distributionsdsd
+#' @param Nw number of points to use for wage distribution
 #' @param k  number of groups
 #' @param nstart (default:1000) total number of starting values
-#' @param iter.max (default:100) max nunmber of step for each repetition
+#' @param iter.max (default:100) max number of step for each repetition
 #' @param measures object created using grouping.getMeasures
 #' @param step step size in the repeating
 #' @export
