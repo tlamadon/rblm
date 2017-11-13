@@ -1,6 +1,6 @@
 # rblm
-R package for estimation of complementarities in two-way fixed effects models
 
+R package for estimation of complementarities in models with two-sided heterogeneity
 
 ## Install from github
 
@@ -21,5 +21,5 @@ First download the repository using git, then open the projet in Rstudio. Finall
     
 ## Example
 
-You should find the following working example `inst/example/example.r`.
+You should find the following working example `vignettes/example.Rmd`.
     

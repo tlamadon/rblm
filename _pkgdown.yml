@@ -1,0 +1,17 @@
+reference:
+  - title: "Clustering"
+    desc: >
+      Functions to compute the grouping on firms
+    contents:
+      - starts_with("grouping")
+  - title: "Estimating"
+    desc: "Functions to estimate the interacted model using the clustered data."
+    contents:
+      - starts_with("m2.mini")
+articles:
+  - title: "Tutorial"
+    desc: >
+      These packages provide advanced features that can enhance your Shiny
+      apps.
+    contents:
+    - example
