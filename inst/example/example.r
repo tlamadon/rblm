@@ -1,52 +1,50 @@
 require(rblm)
 
 # ====== simulate some data ==========
-model = model.mini2.new(10,serial = F)
+model = m2.mini.new(10,serial = F)
 NNs   = array(300000/model$nf,model$nf)
-sdata = model.mini2.simulate.stayers(model,NNs)
-jdata = model.mini2.simulate.movers(model,NNm)
-#
+NNm   = array(30000/model$nf^2,c(model$nf,model$nf))
+sdata = m2.mini.simulate.stayers(model,NNs)
+jdata = m2.mini.simulate.movers(model,NNm)
+
 # randomly assign firm IDs
-sdata[,f1:=j1 + model$nf*(sample.int(.N/50,.N,replace=T)-1),j1]
+sdata[,f1:=paste("F",j1 + model$nf*(sample.int(.N/50,.N,replace=T)-1),sep=""),j1]
 sdata[,j1b:=j1]
 jdata[,j1c:=j1]
 jdata[,f1:=sample( unique(sdata[j1b==j1c,f1])    ,.N,replace=T),j1c]
 jdata[,f2:=sample( unique(sdata[j1b==j2,f1])    ,.N,replace=T),j2]
 
+# combine the movers and stayers, ad stands for all data:
+ad = list(sdata=sdata,jdata=jdata)
+
+# plot firm size distribution
+ad$sdata[,.N,f1][,hist(N)]
+
 # ========== clustering firms ================
 
-#plot firm size distribution
-sdata[,.N,f1][,hist(N)]
+# we start by extracting the measures that will be used to cluster
+ms    = grouping.getMeasures(ad,"ecdf",Nw=20,y_var = "y1")
+# in the previous command we tell rblm that we want to use the firm
+# specific empirical measure "ecdf" with 20 points of supports and that
+# the dependent variable is "y1". The firm identifier should be "f1"
 
-# rename to match cluster function names: fid, y
-# we cluster using the wage in period 1, we need to call firm id "fid" and the wage "lw" hence we use sdata[,list(fid=f1,lw=y1)]
-clus = cluster.firms.data(sdata[,list(fid=f1,lw=y1)],ncluster=10,nw=40,nstart=300,step=20,merge = F)
+# then we group we choose k=10
+grps  = grouping.classify.once(ms,k = 10,nstart = 1000,iter.max = 200,step=100)
 
-# reattach the clus to the orginal data in period
-sdata[,j1t:=j1] # save true type
-setkey(sdata,f1)
-setkey(clus,fid)
-sdata[,j1:=clus[sdata,clus]]
+# finally we append the results to adata
+ad   = grouping.append(ad,grps$best_cluster)
 
-# order by mean wage
-JJ = sdata[,mean(y1),j1][order(j1)][,rank(V1)]
-sdata[,j1 := JJ[j1]]
-clus = unique(sdata[,list(fid=f1,clus=j1)])
+# ==== ESTIMATE THE MODEL (OLD CODE) ========
+res = m2.mini.estimate(ad$jdata,ad$sdata,model0 = model,method = "prof")
 
-# check that the firms are well classified, you should see a strong diagonal
-rr = sdata[,list(j1t=j1t[1],j1=j1),f1][,.N,list(j1,j1t)]
-ggplot(rr,aes(x=j1,y=j1t,size=N)) + geom_point()
+# ==== Extract all necesserary moments for off-line estimation ===
+mstats = ad$jdata[,list(m1=mean(y1),sd1=sd(y1),
+                         m2=mean(y2),sd2=sd(y2),
+                         v12 = cov(y1,y2),.N),list(j1,j2)]
+cstats = ad$sdata[,list(m1=mean(y1),sd1=sd(y1),
+                         m2=mean(y2),sd2=sd(y2),
+                         v12 = cov(y1,y2),.N),list(j1)]
 
-# attach clsuter to movers
-setkey(clus,fid)
-jdata[,j1t:=j1] # save true type
-setkey(jdata,f1)
-jdata[,j1:=clus[jdata,clus]]
-jdata[,j2t:=j2] # save true type
-setkey(jdata,f2)
-jdata[,j2:=clus[jdata,clus]]
+# save these for later estimation
 
-# ==== ESTIMATE THE MODEL ========
-
-res = model.mini2.estimate(jdata,sdata,model0 = model)
 

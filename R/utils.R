@@ -35,9 +35,9 @@ hist2 <- function(Y1,Y2,wsup) {
   for (i in 1:n) for (j in 1:n) {
     H[i,j] = sum(  (Y1 < wsup[i]) & (Y2 < wsup[j]) )
   }
-  H[n,n] = length(Y1)     
+  H[n,n] = length(Y1)
   H = H/H[n,n]
-  return(H)  
+  return(H)
 }
 
 hist1 <- function(Y1,wsup) {
@@ -46,9 +46,9 @@ hist1 <- function(Y1,wsup) {
   for (i in 1:n) {
     H[i] = sum(  (Y1 < wsup[i]) )
   }
-  H[n] = length(Y1)     
+  H[n] = length(Y1)
   H = H/H[n]
-  return(H)  
+  return(H)
 }
 
 # allow to use 2 different supports
@@ -58,9 +58,9 @@ hist2d <- function(Y1,Y2,wsup) {
   for (i in 1:n) for (j in 1:n) {
     H[i,j] = sum(  (Y1 < wsup[i]) & (Y1 >= wsup[i-1]) & (Y2 < wsup[j]) & (Y1 >= wsup[i-1])  )
   }
-  H[n,n] = length(Y1)     
+  H[n,n] = length(Y1)
   H = H/H[n,n]
-  return(H)  
+  return(H)
 }
 
 # smoothed histogram
@@ -71,12 +71,12 @@ hist2s <- function(Y1,Y2,wsup,h) {
     H[i,j] = sum(  pnorm( (wsup[i] - Y1 )/h ) *  pnorm( (wsup[j] - Y2 )/h ) )
   }
   H = H/H[n,n]
-  return(H)  
+  return(H)
 }
 
 #' @export
 rdim <- function(A,...) {
-  dd <- list(...); 
+  dd <- list(...);
   if (length(dd)==1) {
     dim(A)<-dd[[1]]
   } else {
@@ -85,44 +85,20 @@ rdim <- function(A,...) {
   return(A)
 }
 
-kmeansW.repeat <- function(x, centers, weight = rep(1, nrow(x)), iter.max = 10, nstart = 1,step=20) {
-  
-  cat(sprintf("running weigthed kmeans step=%i total=%i\n nobs=%i nmeasures=%i \n", step, nstart, dim(x)[1], dim(x)[2] ))
-  
-  best = Inf
-  best_clus = NA
-  
-  for (i in 1:round(nstart/step)) {
-    clus = kmeansW(x,centers,weight,iter.max,nstart=step)
-    
-    tot = sum(clus$withinss)
-    if (tot < best) {
-      best_clus = clus
-      best = tot
-      cat(sprintf("[%2i%%] tot=%f best=%f <<<< \n", round(100*i*step/nstart), tot,  best))
-    } else {
-      cat(sprintf("[%2i%%] tot=%f best=%f \n", round(100*i*step/nstart), tot,  best))
-    }
-        
-  }
-   
-  return(clus)
-}
-    
 tic.new <- function() {
   t = Sys.time()
   tt = list(all.start=t,last.time=t,loop=0,timers=list())
-  
+
   tic.toc <- function(name="") {
     t = Sys.time()
     if (name=="") {
       return(tt)
     }
-    
+
     if (name %in% names(tt$timers)) {
       tm = tt$timers[[name]]
       tm$count = tm$count+1
-      tm$total = tm$total + t - tt$last.time    
+      tm$total = tm$total + t - tt$last.time
       tt$timers[[name]] = tm
     } else {
       tm = list(count=1,total=t - tt$last.time)
@@ -131,11 +107,27 @@ tic.new <- function() {
     tt$last.time=t;
     tt <<- tt
   }
-  
+
   return(tic.toc)
 }
 
+#' order cluster by increasing wage
+#' @export
+cluster.order <- function(sim) {
+  sim$sdata = sim$sdata[!is.na(j1)]
+  I = sim$sdata[,mean(y1),j1][order(j1)][,rank(V1)]
+  sim$sdata[,j1:=I[j1]][,j2:=I[j2]]
+  sim$jdata[,j1:=I[j1]][,j2:=I[j2]]
+  return(sim)
+}
 
-
+mvar <- function(x) {
+  if (length(x)<=1) return(0);
+  return(var(x))
+}
+mcov <- function(x,y) {
+  if (length(x)<=1) return(0);
+  return(cov(x,y))
+}
 
 

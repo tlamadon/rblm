@@ -118,8 +118,11 @@ lm.wfitnn <- function(XX,YY,rw) {
   C1       = diag(n)
   C0       = rep(0,n)
 
-  fit      = qprog(Dq,dq,C1,C0)
-  fit$solution = as.numeric(fit$thetahat)
+  #fit      = qprog(Dq,dq,C1,C0)
+  #fit$solution = as.numeric(fit$thetahat)
+
+  fit      = solve.QP(Dq,dq,C1,C0,0)
+  fit$solution = as.numeric(fit$solution)
 
   return(fit)
 }

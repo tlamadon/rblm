@@ -33,8 +33,9 @@ Depends:
     quadprog,
     gridExtra,
     foreign,
-    coneproj
+    futile.logger,
+    Hmisc
 Suggests:
     knitr,
     testthat
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.1
