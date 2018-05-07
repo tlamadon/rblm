@@ -24,8 +24,16 @@ options(knitr.table.format = "html")
 # Simulating a data set
 
 ```{r}
-set.seed(43243123)
+set.seed(324313)
 model = m2.mini.new(10,serial = F,fixb=T)
+
+# we set the parameters to something simple
+model$A1 = seq(0,2,l=model$nf)
+model$A2 = seq(0,2,l=model$nf)
+model$B1 = seq(1,2,l=model$nf) # adding complementarity
+model$B2 = seq(1,2,l=model$nf)
+model$Em = seq(0,1,l=model$nf) # adding sorting
+
 model$Ns   = array(300000/model$nf,model$nf)
 model$Nm   = 10*toeplitz(ceiling(seq(100,10,l=model$nf)))
 sdata = m2.mini.simulate.stayers(model,model$Ns)
@@ -36,7 +44,7 @@ stayer_share = sum(model$Ns)/(sum(model$Ns)+sum(model$Nm))
 model$vdec   = m2.mini.vdec(model,1e6,stayer_share,"y1")
 
 # randomly assign firm IDs
-sdata <- sdata[,f1:=paste("F",j1 + model$nf*(sample.int(.N/50,.N,replace=T)-1),sep=""),j1]
+sdata <- sdata[,f1:=paste("F",j1 + model$nf*(sample.int(.N/100,.N,replace=T)-1),sep=""),j1]
 sdata <- sdata[,j1b:=j1]
 sdata <- sdata[,j1true := j1]
 jdata <- jdata[,j1true := j1][,j2true := j2]
@@ -52,7 +60,7 @@ sdata$j1b=NULL
 ad = list(sdata=sdata,jdata=jdata)
 
 # plot firm size distribution
-ggplot(ad$sdata[,.N,f1],aes(x=N)) + geom_histogram(binwidth=1)
+ggplot(ad$sdata[,.N,f1],aes(x=N)) + geom_histogram(binwidth=1) + theme_bw()
 
 ```
 
@@ -68,7 +76,8 @@ grps  = grouping.classify.once(ms,k = 10,nstart = 1000,iter.max = 200,step=250)
 ad   = grouping.append(ad,grps$best_cluster,drop=T)
 
 # we can also check the classification
-ggplot(ad$sdata[,.N,list(j1,j1true)],aes(x=j1true,y=j1,size=N)) + geom_point()
+ggplot(ad$sdata[,.N,list(j1,j1true)],aes(x=j1true,y=j1,size=N)) + geom_point() + theme_bw() +
+  scale_x_continuous("true type") + scale_y_continuous("estimated group")
 ```
 
 In the previous command we tell rblm that we want to use the firm
@@ -91,15 +100,22 @@ kable(rbind(model$vdec$stats,res$vdec$stats),digits = 4) %>%
 ```
 
 
-And we can plot the resulting wage
+And we can plot the resulting wage, next to the true ones
 
 ```{r}
-m2.mini.plotw(res)
+m2.mini.plotw(res)    + ggtitle("Estimated wages")
+m2.mini.plotw(model)  + ggtitle("Model wages")
 ```
 
 
 
-# Extract all necesserary moments for off-line estimation
+
+
+## Estimating using quasi-likelihood
+
+This is a new estimator we have been working on.
+
+We start by extracting all necesserary moments for off-line estimation:
 
 ```{r}
 mstats = ad$jdata[,list(m1=mean(y1),sd1=sd(y1),
@@ -110,6 +126,15 @@ cstats = ad$sdata[,list(m1=mean(y1),sd1=sd(y1),
                          v12 = cov(y1,y2),.N),list(j1)]
 ```
 
+Then we estimate using the quasi-likelihood estimator:
+```{r,warning=FALSE,results=FALSE}
+res2 = m2.minirc.estimate(cstats,mstats,method = 2)
+```
 
+here is the variance decomposition:
 
-
+```{r}
+dd = rbind(model$vdec$stats,res$vdec$stats,res2$vdec$stats)
+kable(,digits = 4) %>%
+  kable_styling(bootstrap_options = c("striped", "bordered","condensed"), full_width = F)
+```

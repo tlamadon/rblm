@@ -7,17 +7,13 @@ m2.mini.new <- function(nf,linear=FALSE,serial=F,fixb=F) {
   m$nf = nf
 
   # generating intercepts and interaction terms
-  m$A1 = rnorm(nf)
-  m$B1 = exp(rnorm(nf)/2)
-  m$A2 = rnorm(nf)
-  m$B2 = exp(rnorm(nf)/2)
-
-  # generate the E(alpha|l,l') and sd
-  m$EEm  = spread(m$A1,2,nf) +  spread(m$A2,1,nf) + array(rnorm(nf^2),c(nf,nf))
-  m$EEsd = exp(array(rnorm(nf^2),c(nf,nf))/2)
+  m$A1 = 0.5*rnorm(nf)
+  m$B1 = exp(rnorm(nf)/3)
+  m$A2 = 0.5*rnorm(nf)
+  m$B2 = exp(rnorm(nf)/3)
 
   # generate the variance of eps
-  m$eps1_sd  = 0.1*exp(rnorm(nf)/2)
+  m$eps1_sd  = exp(rnorm(nf)/2)
   m$eps2_sd  = m$eps1_sd
   m$eps_cor  = runif(1)
 
@@ -25,6 +21,10 @@ m2.mini.new <- function(nf,linear=FALSE,serial=F,fixb=F) {
   m$Em   = sort(rnorm(nf))
   m$Esd  = exp(rnorm(nf)/2)
 
+  # set normalization
+  m$B2 = m$B2/m$B2[1]
+  m$B1 = m$B1/m$B2[1]
+  m$A1[1] = 0
 
   if (linear) {
     m$B1[] = 1
@@ -39,23 +39,17 @@ m2.mini.new <- function(nf,linear=FALSE,serial=F,fixb=F) {
     m$B1=m$B2
   }
 
-  # order the clusters
+  # sort
   I = order(m$A1 + m$B1*m$Em)
   m$A1 = m$A1[I]
-  m$B1 = m$B1[I]
   m$A2 = m$A2[I]
-  m$B2 = m$B2[I]
+  m$B1 = m$B1[I]
+  m$B1 = m$B2[I]
   m$Em = m$Em[I]
 
-  # set normalization
-  bnorm = m$B1[1]
-  m$B2  = m$B2/bnorm
-  m$B1  = m$B1/bnorm
-  m$Em  = m$Em*bnorm
-  m$EEm = m$EEm*bnorm
-  anorm = m$A1[1]
-  m$A1  = m$A1-anorm
-  m$A2  = m$A2-anorm
+  # generate the E(alpha|l,l') and sd
+  m$EEm  = 0.8*spread(m$Em,2,nf) +  0.2*spread(m$Em,1,nf) + 0.3*array(rnorm(nf^2),c(nf,nf))
+  m$EEsd = exp(array(rnorm(nf^2),c(nf,nf))/2)
 
   return(m)
 }
@@ -96,6 +90,7 @@ m2.mini.simulate.movers <- function(model,NNm) {
 
   i =1
   for (l1 in 1:nf) for (l2 in 1:nf) {
+    if (NNm[l1,l2]==0) next;
     I = i:(i+NNm[l1,l2]-1)
     ni = length(I)
     jj = l1 + nf*(l2 -1)
@@ -610,7 +605,6 @@ m2.mini.estimate <- function(jdata,sdata,norm=1,model0=c(),method="ns",withx=FAL
   # function which computes the variance terms
   getEsd <- function(sdata) {
     setkey(sdata,j1)
-    mvar <- function(...) var(...)
     YY1 = sdata[,mvar(y1),list(j1)][,V1] - eps1_sd^2
     YY2 = sdata[,mvar(y2),list(j1)][,V1] - eps2_sd^2
     XX1 = diag(B1^2)
@@ -654,8 +648,7 @@ m2.mini.estimate <- function(jdata,sdata,norm=1,model0=c(),method="ns",withx=FAL
     rr = addmom(B1,model0$B1,"B1",rr)
     rr = addmom(B2,model0$B2,"B2",rr)
     rr = addmom(EEsd,model0$EEsd,"EEsd",rr)
-    rr = addmom(eps1_sd,model0$eps1_sd,"eps1_sd",rr)
-    rr = addmom(eps2_sd,model0$eps2_sd,"eps2_sd",rr)
+    rr = addmom(eps1_sd,model0$eps1_sd,"eps_sd",rr)
     rr = addmom(Esd,model0$Esd,"Esd",rr)
     print(ggplot(rr,aes(x=val2,y=val1,color=type)) + geom_point() + facet_wrap(~name,scale="free") + theme_bw() + geom_abline(linetype=2))
     catf("cor with true model:%f",cor(rr$val1,rr$val2))
@@ -922,44 +915,478 @@ m2.mini.plotw <- function(model,qt=6,getvals=F) {
 
 }
 
-#' Generate a linear projection decomposition for the model
-#' with continuous worker hetergoneity
-#'
-#' @export
-lin.proja <- function(sdata,y_col="y",k_col="k",j_col="j") {
-  rr = list()
 
-  sdata2 = copy(data.table(sdata))
-  sdata2[,y_imp := get(y_col)]
-  sdata2[,k_imp := get(k_col)]
-  sdata2[,j     := get(j_col)]
 
-  fit = lm(y_imp ~ k_imp + factor(j),sdata2)
-  sdata2$res = residuals(fit)
-  pred = predict(fit,type = "terms")
-  sdata2$k_hat = pred[,1]
-  sdata2$l_hat = pred[,2]
 
-  rr$cc = sdata2[,cov.wt( data.frame(y_imp,k_hat,l_hat,res))$cov]
-  rr$rsq1 = summary(fit)$r.squared
+#
+extract.variances <- function(jdata,sdata,B1,B2,rr=list(),na.rm=F) {
 
-  fit2 = lm(y_imp ~ 0+  k_imp:factor(j) + factor(j),sdata2)
-  rr$rsq2 = 1-mean(resid(fit2)^2)/var(sdata2$y_imp)
+  # compute the variance of espilon conditional on l1, l2
+  alpha_var_l1l2 = acast(jdata[, list(V1 = mcov(y1,y2) /( B1[j1] * B2[j2])) , list(j1,j2)],j1~j2)
 
-  get.stats <- function(cc) {
-    r=list()
-    den = cc[2,2] + cc[3,3] + 2 * cc[2,3]
-    r$cor_kl = round(cc[2,3]/sqrt(cc[2,2]*cc[3,3]),4)
-    r$cov_kl = 2*round(cc[2,3]/den,4)
-    r$var_k  = round(cc[2,2]/den,4)
-    r$var_l  = round(cc[3,3]/den,4)
-    r$rsq    = round((cc[1,1] - cc[4,4])/cc[1,1],4)
-    return(r)
-  }
+  # compute the variance of espilon conditional on l1, l2
+  espilon_var_l1
+  l2 = jdata[, list( mvar(y1) - mcov(y1,y2) * B1[j1]/B2[j2] ,.N) , list(j1,j2)]
+  if (na.rm==TRUE) espilon_var_l1l2[ is.na(V1), V1:=0 ];
 
-  rr$stats = get.stats(rr$cc)
-  print(data.frame(rr$stats))
-  rr$NNs = sdata[,.N,j1][order(j1)][,N]
+  # compute the variance of espilon conditional on l1, l2
+  epsilon_var_l  = espilon_var_l1l2[ , weighted.mean(V1,N) , j1][, V1]
+
+  # compute the variance of alpha conditional on l
+  alpha_var_l = (sdata[,mvar(y),j][,V1] - epsilon_var_l)/b_l^2
+
+  rr$espilon_var_l1l2 = acast(espilon_var_l1l2,j1~j2,value.var = "V1")
+  rr$epsilon_var_l    = epsilon_var_l
+  rr$alpha_var_l      = alpha_var_l
+  rr$alpha_var_l1l2  = alpha_var_l1l2
 
   return(rr)
 }
+
+est.nls <- function() {
+
+  # objective function given X
+  eval_f <- function( x ) {
+
+    B1  = x[1:L]
+    B2  = x[(L+1):(2*L)]
+    A1  = c(0,x[(2*L+1):(3*L-1)])
+    A2  = x[(3*L):(4*L-1)]
+    EEm = array( x[(4*L):(4*L + L^2-1)], c(L,L))
+
+    # we sum square terms
+    obj  = jdata[, (y1 - A1[j1] - B1[j1]*EEm[j1,j2])^2 + (y2 - A2[j2] - B2[j2]*EEm[j1,j2])^2,list(j1,j2)][,sum(V1^2)]
+
+    gB1  = jdata[, -2*EEm[j1,j2]*(y1 - A1[j1] - B1[j1]*EEm[j1,j2]),list(j1,j2)][,sum(V1),j1]
+    gB2  = jdata[, -2*EEm[j1,j2]*(y2 - A2[j2] - B2[j2]*EEm[j1,j2]),list(j1,j2)][,sum(V1),j2]
+    gA1  = jdata[, -2*(y1 - A1[j1] - B1[j1]*EEm[j1,j2]),list(j1,j2)][,sum(V1),j1]
+    gA2  = jdata[, -2*(y2 - A2[j2] - B2[j2]*EEm[j1,j2]),list(j1,j2)][,sum(V1),j2]
+    gEEm = jdata[,  -2*B1[j1]*(y1 - A1[j1] - B1[j1]*EEm[j1,j2]) -2*B2[j2]*(y1 - A1[j1] - B1[j1]*EEm[j1,j2]),list(j1,j2)][,sum(V1),list(j1,j2)]
+
+    return(list( "objective" = obj,
+                 "gradient" = c(gB1,gB2,gA1[2:L],gA2)))
+  }
+
+
+
+
+
+
+
+
+
+
+}
+
+
+#' estimates interacted model using quasi-linkelood on the data moments
+#'
+#' @export
+m2.miniql.estimate <- function(jdata,sdata,norm=1,model0=c(),maxiter=1000,ncat=50,linear=F,init0=F) {
+
+  nf = length(unique(sdata$j1))
+
+  # we start by extracting the moments from the data
+  Nm = acast(jdata[,.N,list(j1,j2)],j1~j2,fill=0,value.var = "N")
+  M1 = acast(jdata[,mean(y1),list(j1,j2)],j1~j2,fill=0,value.var = "V1")
+  M2 = acast(jdata[,mean(y2),list(j1,j2)],j1~j2,fill=0,value.var = "V1")
+  V11 = acast(jdata[,var(y1),list(j1,j2)],j1~j2,fill=0,value.var = "V1")
+  V22 = acast(jdata[,var(y2),list(j1,j2)],j1~j2,fill=0,value.var = "V1")
+  V12 = acast(jdata[,cov(y1,y2),list(j1,j2)],j1~j2,fill=0,value.var = "V1")
+
+  # then we initialize the parameters
+  EEm  = array(rnorm(nf^2),c(nf,nf))
+  EEsd = array(1,c(nf,nf))
+  eps1_sd = rep(1,nf)
+  eps2_sd = rep(1,nf)
+  A  = rep(0,nf)
+  B  = 0.5 + runif(nf)
+
+  if (init0) {
+    EEm  = model0$EEm
+    EEsd = model0$EEsd
+    #A = model0$A1
+    B = model0$B1
+    eps1_sd = model0$eps1_sd
+    eps2_sd = model0$eps2_sd
+  }
+
+  SIG  = array(1,c(nf,nf))
+
+  YY = rep(0,4)
+  XX = array(0,c(4,2))
+  XX[1,1]=1
+  XX[4,2]=1
+  SS = array(0,c(4,4))
+  SS[1,1]=1
+
+  DD1 = array(0,c(2*nf,2*nf))
+  DD2 = rep(0,2*nf)
+  lik0 = -Inf
+
+  for (iter in 1:maxiter) {
+
+    # E-step
+    SIG    = ( spread(B^2/eps1_sd^2,2,nf)  + spread(B^2/eps2_sd^2,1,nf) + 1/EEsd^2 )^-1
+    C0     = SIG * (   - spread(A*B/eps1_sd^2,2,nf)  - spread(A*B/eps2_sd^2,1,nf) + EEm/EEsd^2 )
+    C1     = SIG * spread(B/eps1_sd^2,2,nf)
+    C2     = SIG * spread(B/eps2_sd^2,1,nf)
+
+    # evaluate the likelihood
+    lik = 0
+    for (k1 in 1:nf) for (k2 in 1:nf) {
+      MM = c( M1[k1,k2] - A[k1] - B[k1]*EEm[k1,k2] , M2[k1,k2] - A[k2] - B[k2]*EEm[k1,k2] )
+      OO = array( c(  B[k1]^2*EEsd[k1,k2]^2 + eps1_sd[k1]^2  ,
+                      B[k1]*B[k2]*EEsd[k1,k2]^2,B[k1]*B[k2]*EEsd[k1,k2]^2,
+                      B[k2]^2*EEsd[k1,k2]^2 + eps2_sd[k2]^2) ,c(2,2))
+      VV = array(c(V11[k1,k2],V12[k1,k2],V12[k1,k2],V22[k1,k2]),c(2,2))
+      lkk = - log(2*pi) - 1/2*log(det(OO)) -1/2* t(MM) %*% solve(OO) %*% MM -1/2* sum(diag(solve(OO) %*% VV))
+      lik = lik + lkk*Nm[k1,k2]
+    }
+    dlik= lik0 - lik
+    lik0 = lik
+    if (iter%%ncat==0) flog.info("[%i] lik=%4.4f dlik=%4.4f",iter,lik,dlik);
+
+    ntot = sum(Nm)
+
+    # we construct the quad prob problem
+    for (k1 in 1:nf) for (k2 in 1:nf) {
+      # period 1 stuff
+      YY[1]   = M1[k1,k2]
+      YY[2]   = 1
+      YY[3]   = 0
+
+      XX[1,2] = C1[k1,k2]*M1[k1,k2] + C2[k1,k2]*M2[k1,k2] + C0[k1,k2]
+      XX[2,2] = C1[k1,k2]
+      XX[3,2] = -C2[k1,k2]
+
+      SS[2,2] = V11[k1,k2]
+      SS[2,3] = V12[k1,k2]
+      SS[3,2] = V12[k1,k2]
+      SS[3,3] = V22[k1,k2]
+      SS[4,4] = SIG[k1,k2]
+
+      I = 2*(k1-1)+1:2
+      DD1[I,I] = DD1[I,I] + (t(XX) %*% SS %*% XX) * (Nm[k1,k2]/ntot)/eps1_sd[k1]^2
+      DD2[I]   = DD2[I]   + (t(XX) %*% SS %*% YY) * (Nm[k1,k2]/ntot)/eps1_sd[k1]^2
+
+      # period 2 stuff
+      YY[1]   = M2[k1,k2]
+      YY[2]   = 0
+      YY[3]   = 1
+      XX[2,2] = -C1[k1,k2]
+      XX[3,2] = C2[k1,k2]
+
+      I = 2*(k2-1)+1:2
+      DD1[I,I] = DD1[I,I] + (t(XX) %*% SS %*% XX) * (Nm[k1,k2]/ntot)/eps2_sd[k2]^2
+      DD2[I]   = DD2[I]   + (t(XX) %*% SS %*% YY) * (Nm[k1,k2]/ntot)/eps2_sd[k2]^2
+    }
+
+    # solve the problem
+    Amat = array(0,c(2,2*nf)); Amat[1,1]=1; Amat[2,2]=1; bvec = c(0,1);
+    if (linear) {
+      Amat = array(0,c(nf+1,2*nf)); Amat[1,1]=1;
+      for (k in 1:nf) Amat[k+1,2*k]=1;
+      bvec=c(0,rep(1,nf))
+    }
+
+    fit = solve.QP(DD1,DD2,Amat = t(Amat),bvec =bvec,meq = nrow(Amat))
+    R = array(fit$solution,c(2,nf))
+    A = R[1,]
+    B = R[2,]
+
+    #Xtmp = C1*M1 + C2*M2 + C0
+    #A = rowSums( (M1 - Xtmp)*Nm/spread(eps1_sd^2,2,nf) ) +  colSums( (M2 - Xtmp)*Nm/spread(eps2_sd^2,1,nf) )
+    #A = A/( rowSums(Nm/spread(eps1_sd^2,2,nf)) +  colSums(Nm/spread(eps2_sd^2,1,nf)) )
+    #A[1]=0
+
+    # updating eps_sd
+    #eps1_sd = as.numeric(sqrt(rowSums(Nm[k1,k2]*(  (1- spread(B,2,nf)*C1)^2*V11 -2*(1-spread(B,2,nf)*C1)*spread(B,2,nf)*C2*V12 + spread(B,2,nf)^2*C2^2*V22) )/rowSums(Nm)))
+    #eps2_sd = as.numeric(sqrt(colSums(Nm[k1,k2]*(  (1- spread(B,1,nf)*C2)^2*V22 -2*(1-spread(B,1,nf)*C2)*spread(B,1,nf)*C1*V12 + spread(B,1,nf)^2*C1^2*V11) )/colSums(Nm)))
+
+    # update mu and sigmas
+    # EEm  = C0 + C1*M1 + C2*M2
+    # EEsd = sqrt(SIG + C1^2*V11 + 2*C1*C2*V12 + C2^2*V22)
+  } # we loop
+  flog.info("[%i][final] lik=%4.4f dlik=%4.4f",iter,lik,dlik)
+
+  model= list(A1=A,A2=A,B1=B,B2=B,EEm=EEm,EEsd=EEsd,eps1_sd=eps1_sd,eps2_sd=eps2_sd)
+
+
+  if (length(model0)>0) {
+    rr = addmom(model$EEm,model0$EEm,"E(alpha|l1,l2)")
+    rr = addmom(model$A1,model0$A1,"A1",rr)
+    rr = addmom(model$A2,model0$A2,"A2",rr)
+    rr = addmom(model$B1,model0$B1,"B1",rr)
+    rr = addmom(model$B2,model0$B2,"B2",rr)
+    rr = addmom(model$EEsd,model0$EEsd,"EEsd",rr)
+    rr = addmom(model$eps1_sd,model0$eps1_sd,"eps_sd",rr)
+    #rr = addmom(Esd,model0$Esd,"Esd",rr)
+    print(ggplot(rr,aes(x=val2,y=val1,color=type)) + geom_point() + facet_wrap(~name,scale="free") + theme_bw() + geom_abline(linetype=2))
+    catf("cor with true model:%f",cor(rr$val1,rr$val2))
+  }
+
+  return(model)
+}
+
+## RANDOM COEFFICIENT ESTIMATOR
+
+#' Random coefficient estimator for the mini-model
+#'
+#' @param theta  value of the parameters
+#' @param type   what part of the parameters to keep fixed (0: all parameters, 1: A,B, 2: A,eps, 3:eps, 4: homoskedastic)
+#' @param model0 value for the parameters that are kept fixed
+#' @param md  moments from the data (M1,M2,V11,V12,V22,Nm)
+#' @param norm default is c(1,1) whicch gives the index for the normalization of A and B
+#'
+#' @export
+m2.mini.rc.lik <- function(theta,type=0,model0=NA,md,norm=c(1,1)) {
+
+  nf = dim(md$M1)[1]
+
+  if (any(is.na(model0))) {
+    model0 = list(A=rep(0,nf),B=rep(1,nf),eps_sd=rep(1,nf))
+  }
+
+  if (type==0) {
+    A = rep(0,nf)
+    A[setdiff(1:nf,norm[1])] = theta[1:(nf-1)]
+    B = rep(1,nf)
+    B[setdiff(1:nf,norm[2])] = theta[nf:(2*nf-2)]
+    eps_sd = exp(theta[(2*nf-1):(3*nf-2)])
+  }
+  if (type==1) {
+    A = rep(0,nf)
+    A[setdiff(1:nf,norm[1])] = theta[1:(nf-1)]
+    B = rep(1,nf)
+    B[setdiff(1:nf,norm[2])] = theta[nf:(2*nf-2)]
+    eps_sd = model0$eps_sd
+  }
+  if (type==2) {
+    A = rep(0,nf)
+    A[setdiff(1:nf,norm[1])] = theta[1:(nf-1)]
+    B      = model0$B
+    eps_sd = exp(theta[10:19])
+  }
+  if (type==3) {
+    A      = model0$A
+    B      = model0$B
+    eps_sd = exp(theta[1:10])
+  }
+  if (type==4) {
+    A = rep(0,nf)
+    A[setdiff(1:nf,norm[1])] = theta[1:(nf-1)]
+    B = rep(1,nf)
+    B[setdiff(1:nf,norm[2])] = theta[nf:(2*nf-2)]
+    eps_sd = rep(exp(theta[[19]]),10)
+  }
+
+  M1 = md$M1
+  M2 = md$M2
+  V11 = md$V11
+  V22 = md$V22
+  V12 = md$V12
+  Nm = md$Nm
+
+  lik_tot = 0
+  SIG = diag(2)
+  SIGir = diag(2)
+  lik_all = array(0,c(nf,nf))
+
+  for (k1 in 1:nf) for (k2 in 1:nf) {
+    bv  = c(B[k1],B[k2])
+    av  = c(A[k1],A[k2])
+    SIGir[1,1] = eps_sd[k1]^-1 # inverse square root
+    SIGir[2,2] = eps_sd[k2]^-1
+
+    # data
+    VV = array(c(V11[k1,k2],V12[k1,k2],V12[k1,k2],V22[k1,k2]),c(2,2))
+    MM = c( M1[k1,k2], M2[k1,k2])
+
+    # projector
+    den = as.numeric( t(bv) %*% SIGir^2 %*% bv)
+    WW = diag(2) - (SIGir %*% ( bv %*% t(bv) ) %*% SIGir) / den # @fixme: fix the scaling issue when the sigma are very large
+    OO = SIGir %*% WW %*% SIGir
+
+    # means
+    lik_k1k2 = -0.5*log(2*pi) -0.5* t(MM - av) %*% OO %*% (MM - av)
+
+    # variances
+    lik_k1k2 = lik_k1k2 + 0.5*log(sum(diag(SIGir^2 %*% WW))) -1/2*sum(diag( VV %*% OO ))
+
+    # add
+    lik_all[k1,k2] = Nm[k1,k2]*as.numeric(lik_k1k2)
+  }
+
+  #flog.info("lik=%f",-lik)
+  -sum(lik_all)
+}
+
+#' gradient function
+#' @export
+m2.mini.rc.lik.grad <- function(theta,type=0,model0=NA,md,norm=c(1,1)) {
+
+  nf = dim(md$M1)[1]
+
+  if (any(is.na(model0))) {
+    model0 = list(A=rep(0,nf),B=rep(1,nf),eps_sd=rep(1,nf))
+  }
+
+  if (type==0) {
+    A = rep(0,nf)
+    A[setdiff(1:nf,norm[1])] = theta[1:(nf-1)]
+    B = rep(1,nf)
+    B[setdiff(1:nf,norm[2])] = theta[nf:(2*nf-2)]
+    eps_sd = exp(theta[(2*nf-1):(3*nf-2)])
+  }
+  if (type==1) {
+    A = rep(0,nf)
+    A[setdiff(1:nf,norm[1])] = theta[1:(nf-1)]
+    B = rep(1,nf)
+    B[setdiff(1:nf,norm[2])] = theta[nf:(2*nf-2)]
+    eps_sd = model0$eps_sd
+  }
+  if (type==2) {
+    A = rep(0,nf)
+    A[setdiff(1:nf,norm[1])] = theta[1:(nf-1)]
+    B      = model0$B
+    eps_sd = exp(theta[10:19])
+  }
+  if (type==3) {
+    A      = model0$A
+    B      = model0$B
+    eps_sd = exp(theta[1:10])
+  }
+  if (type==4) {
+    A = rep(0,nf)
+    A[setdiff(1:nf,norm[1])] = theta[1:(nf-1)]
+    B = rep(1,nf)
+    B[setdiff(1:nf,norm[2])] = theta[nf:(2*nf-2)]
+    eps_sd = rep(exp(theta[[19]]),10)
+  }
+
+  M1 = md$M1
+  M2 = md$M2
+  V11 = md$V11
+  V22 = md$V22
+  V12 = md$V12
+  Nm = md$Nm
+
+  lik_tot = 0
+  SIG = diag(2)
+  SIGir = diag(2)
+  lik_all = array(0,c(nf,nf))
+
+  diff1 = rep(0,3)
+  diff2 = rep(0,3)
+  grad  = array(0,c(3,nf))
+
+  for (k1 in 1:nf) for (k2 in 1:nf) {
+    a1 = A[k1]
+    a2 = A[k2]
+    b1 = B[k1]
+    b2 = B[k2]
+    s1 = eps_sd[k1]
+    s2 = eps_sd[k2]
+
+    # data
+    v11 = V11[k1,k2]
+    v12 = V12[k1,k2]
+    v22 = V22[k1,k2]
+    m1  = M1[k1,k2]
+    m2  = M2[k1,k2]
+
+    diff1[]=0
+    diff2[]=0
+
+    # term  -0.5* t(MM - av) %*% OO %*% (MM - av)
+    diff1[1] =  ((a1/2 - m1/2)*(b1^2/(s1^2*(b1^2/s1^2 + b2^2/s2^2)) - 1))/s1^2 + ((a1 - m1)*(b1^2/(s1^2*(b1^2/s1^2 + b2^2/s2^2)) - 1))/(2*s1^2) + (b1*b2*(a2/2 - m2/2))/(s1^2*s2^2*(b1^2/s1^2 + b2^2/s2^2)) + (b1*b2*(a2 - m2))/(2*s1^2*s2^2*(b1^2/s1^2 + b2^2/s2^2))
+    diff1[2] = (a1 - m1)*((((2*b1)/(s1^2*(b1^2/s1^2 + b2^2/s2^2)) - (2*b1^3)/(s1^4*(b1^2/s1^2 + b2^2/s2^2)^2))*(a1/2 - m1/2))/s1^2 + (b2*(a2/2 - m2/2))/(s1^2*s2^2*(b1^2/s1^2 + b2^2/s2^2)) - (2*b1^2*b2*(a2/2 - m2/2))/(s1^4*s2^2*(b1^2/s1^2 + b2^2/s2^2)^2)) - (a2 - m2)*((2*b1^2*b2*(a1/2 - m1/2))/(s1^4*s2^2*(b1^2/s1^2 + b2^2/s2^2)^2) - (b2*(a1/2 - m1/2))/(s1^2*s2^2*(b1^2/s1^2 + b2^2/s2^2)) + (2*b1*b2^2*(a2/2 - m2/2))/(s1^2*s2^4*(b1^2/s1^2 + b2^2/s2^2)^2))
+    diff1[3] = (a2 - m2)*((2*b1^2*b2^2*(a2/2 - m2/2))/(s1^3*s2^4*(b1^2/s1^2 + b2^2/s2^2)^2) - (2*b1*b2*(a1/2 - m1/2))/(s1^3*s2^2*(b1^2/s1^2 + b2^2/s2^2)) + (2*b1^3*b2*(a1/2 - m1/2))/(s1^5*s2^2*(b1^2/s1^2 + b2^2/s2^2)^2)) - (a1 - m1)*((2*(a1/2 - m1/2)*(b1^2/(s1^2*(b1^2/s1^2 + b2^2/s2^2)) - 1))/s1^3 + (((2*b1^2)/(s1^3*(b1^2/s1^2 + b2^2/s2^2)) - (2*b1^4)/(s1^5*(b1^2/s1^2 + b2^2/s2^2)^2))*(a1/2 - m1/2))/s1^2 + (2*b1*b2*(a2/2 - m2/2))/(s1^3*s2^2*(b1^2/s1^2 + b2^2/s2^2)) - (2*b1^3*b2*(a2/2 - m2/2))/(s1^5*s2^2*(b1^2/s1^2 + b2^2/s2^2)^2))
+
+    diff2[1] = ((a2/2 - m2/2)*(b2^2/(s2^2*(b1^2/s1^2 + b2^2/s2^2)) - 1))/s2^2 + ((a2 - m2)*(b2^2/(s2^2*(b1^2/s1^2 + b2^2/s2^2)) - 1))/(2*s2^2) + (b1*b2*(a1/2 - m1/2))/(s1^2*s2^2*(b1^2/s1^2 + b2^2/s2^2)) + (b1*b2*(a1 - m1))/(2*s1^2*s2^2*(b1^2/s1^2 + b2^2/s2^2))
+    diff2[2] = (a2 - m2)*((((2*b2)/(s2^2*(b1^2/s1^2 + b2^2/s2^2)) - (2*b2^3)/(s2^4*(b1^2/s1^2 + b2^2/s2^2)^2))*(a2/2 - m2/2))/s2^2 + (b1*(a1/2 - m1/2))/(s1^2*s2^2*(b1^2/s1^2 + b2^2/s2^2)) - (2*b1*b2^2*(a1/2 - m1/2))/(s1^2*s2^4*(b1^2/s1^2 + b2^2/s2^2)^2)) - (a1 - m1)*((2*b1^2*b2*(a1/2 - m1/2))/(s1^4*s2^2*(b1^2/s1^2 + b2^2/s2^2)^2) - (b1*(a2/2 - m2/2))/(s1^2*s2^2*(b1^2/s1^2 + b2^2/s2^2)) + (2*b1*b2^2*(a2/2 - m2/2))/(s1^2*s2^4*(b1^2/s1^2 + b2^2/s2^2)^2))
+    diff2[3] = (a1 - m1)*((2*b1^2*b2^2*(a1/2 - m1/2))/(s1^4*s2^3*(b1^2/s1^2 + b2^2/s2^2)^2) - (2*b1*b2*(a2/2 - m2/2))/(s1^2*s2^3*(b1^2/s1^2 + b2^2/s2^2)) + (2*b1*b2^3*(a2/2 - m2/2))/(s1^2*s2^5*(b1^2/s1^2 + b2^2/s2^2)^2)) - (a2 - m2)*((2*(a2/2 - m2/2)*(b2^2/(s2^2*(b1^2/s1^2 + b2^2/s2^2)) - 1))/s2^3 + (((2*b2^2)/(s2^3*(b1^2/s1^2 + b2^2/s2^2)) - (2*b2^4)/(s2^5*(b1^2/s1^2 + b2^2/s2^2)^2))*(a2/2 - m2/2))/s2^2 + (2*b1*b2*(a1/2 - m1/2))/(s1^2*s2^3*(b1^2/s1^2 + b2^2/s2^2)) - (2*b1*b2^3*(a1/2 - m1/2))/(s1^2*s2^5*(b1^2/s1^2 + b2^2/s2^2)^2))
+
+    # term  0.5*log(sum(diag(SIGir^2 %*% WW))) -1/2*sum(diag( VV %*% OO ))
+    diff1[2] = diff1[2] + (((2*b1)/(s1^2*(b1^2/s1^2 + b2^2/s2^2)) - (2*b1^3)/(s1^4*(b1^2/s1^2 + b2^2/s2^2)^2))/s1^2 - (2*b1*b2^2)/(s1^2*s2^4*(b1^2/s1^2 + b2^2/s2^2)^2))/(2*((b1^2/(s1^2*(b1^2/s1^2 + b2^2/s2^2)) - 1)/s1^2 + (b2^2/(s2^2*(b1^2/s1^2 + b2^2/s2^2)) - 1)/s2^2)) + (v11*((2*b1)/(s1^2*(b1^2/s1^2 + b2^2/s2^2)) - (2*b1^3)/(s1^4*(b1^2/s1^2 + b2^2/s2^2)^2)))/(2*s1^2) + (b2*v12)/(s1^2*s2^2*(b1^2/s1^2 + b2^2/s2^2)) - (2*b1^2*b2*v12)/(s1^4*s2^2*(b1^2/s1^2 + b2^2/s2^2)^2) - (b1*b2^2*v22)/(s1^2*s2^4*(b1^2/s1^2 + b2^2/s2^2)^2)
+    diff1[3] = diff1[3] + (2*b1^3*b2*v12)/(s1^5*s2^2*(b1^2/s1^2 + b2^2/s2^2)^2) - (v11*((2*b1^2)/(s1^3*(b1^2/s1^2 + b2^2/s2^2)) - (2*b1^4)/(s1^5*(b1^2/s1^2 + b2^2/s2^2)^2)))/(2*s1^2) - (v11*(b1^2/(s1^2*(b1^2/s1^2 + b2^2/s2^2)) - 1))/s1^3 - ((2*(b1^2/(s1^2*(b1^2/s1^2 + b2^2/s2^2)) - 1))/s1^3 + ((2*b1^2)/(s1^3*(b1^2/s1^2 + b2^2/s2^2)) - (2*b1^4)/(s1^5*(b1^2/s1^2 + b2^2/s2^2)^2))/s1^2 - (2*b1^2*b2^2)/(s1^3*s2^4*(b1^2/s1^2 + b2^2/s2^2)^2))/(2*((b1^2/(s1^2*(b1^2/s1^2 + b2^2/s2^2)) - 1)/s1^2 + (b2^2/(s2^2*(b1^2/s1^2 + b2^2/s2^2)) - 1)/s2^2)) + (b1^2*b2^2*v22)/(s1^3*s2^4*(b1^2/s1^2 + b2^2/s2^2)^2) - (2*b1*b2*v12)/(s1^3*s2^2*(b1^2/s1^2 + b2^2/s2^2))
+    diff2[2] = diff2[2] + (((2*b2)/(s2^2*(b1^2/s1^2 + b2^2/s2^2)) - (2*b2^3)/(s2^4*(b1^2/s1^2 + b2^2/s2^2)^2))/s2^2 - (2*b1^2*b2)/(s1^4*s2^2*(b1^2/s1^2 + b2^2/s2^2)^2))/(2*((b1^2/(s1^2*(b1^2/s1^2 + b2^2/s2^2)) - 1)/s1^2 + (b2^2/(s2^2*(b1^2/s1^2 + b2^2/s2^2)) - 1)/s2^2)) + (v22*((2*b2)/(s2^2*(b1^2/s1^2 + b2^2/s2^2)) - (2*b2^3)/(s2^4*(b1^2/s1^2 + b2^2/s2^2)^2)))/(2*s2^2) + (b1*v12)/(s1^2*s2^2*(b1^2/s1^2 + b2^2/s2^2)) - (b1^2*b2*v11)/(s1^4*s2^2*(b1^2/s1^2 + b2^2/s2^2)^2) - (2*b1*b2^2*v12)/(s1^2*s2^4*(b1^2/s1^2 + b2^2/s2^2)^2)
+    diff2[3] = diff2[3] + (2*b1*b2^3*v12)/(s1^2*s2^5*(b1^2/s1^2 + b2^2/s2^2)^2) - (v22*((2*b2^2)/(s2^3*(b1^2/s1^2 + b2^2/s2^2)) - (2*b2^4)/(s2^5*(b1^2/s1^2 + b2^2/s2^2)^2)))/(2*s2^2) - (v22*(b2^2/(s2^2*(b1^2/s1^2 + b2^2/s2^2)) - 1))/s2^3 - ((2*(b2^2/(s2^2*(b1^2/s1^2 + b2^2/s2^2)) - 1))/s2^3 + ((2*b2^2)/(s2^3*(b1^2/s1^2 + b2^2/s2^2)) - (2*b2^4)/(s2^5*(b1^2/s1^2 + b2^2/s2^2)^2))/s2^2 - (2*b1^2*b2^2)/(s1^4*s2^3*(b1^2/s1^2 + b2^2/s2^2)^2))/(2*((b1^2/(s1^2*(b1^2/s1^2 + b2^2/s2^2)) - 1)/s1^2 + (b2^2/(s2^2*(b1^2/s1^2 + b2^2/s2^2)) - 1)/s2^2)) + (b1^2*b2^2*v11)/(s1^4*s2^3*(b1^2/s1^2 + b2^2/s2^2)^2) - (2*b1*b2*v12)/(s1^2*s2^3*(b1^2/s1^2 + b2^2/s2^2))
+
+    # correct of the exponetional transform
+    diff1[3] = diff1[3]*s1
+    diff2[3] = diff2[3]*s2
+
+    # add to main gradient
+    grad[,k1] = grad[,k1] + Nm[k1,k2]*diff1
+    grad[,k2] = grad[,k2] + Nm[k1,k2]*diff2
+  }
+
+  #flog.info("lik=%f",-lik)
+  -c(grad[1,2:10],grad[2,2:10],grad[3,])
+}
+
+
+#' @export
+m2.minirc.estimate <- function(cstats,mstats,method=1,verbose=FALSE) {
+
+  setkey(cstats,j1)
+  l1 = 0 #cstats[,wt.mean(m1,N)]
+  l2 = 0 #cstats[,wt.mean(m2,N)]
+
+  M1  = acast(mstats,j1~j2,value.var = "m1",fill=0)-l1
+  M2  = acast(mstats,j1~j2,value.var = "m2",fill=0)-l2
+  V11 = acast(mstats,j1~j2,value.var = "sd1",fill=0)^2
+  V22 = acast(mstats,j1~j2,value.var = "sd2",fill=0)^2
+  V12 = acast(mstats,j1~j2,value.var = "v12",fill=0)
+  Nm  = acast(mstats,j1~j2,value.var = "N",fill=0)
+  md  = list(M1=M1,M2=M2,V11=V11,V22=V22,V12=V12,Nm=Nm)
+  nf = dim(M1)[[1]]
+
+  if (method==1) {
+    theta_1    =  c(rnorm(9),0.5+runif(9), rep(-1,10))
+    res = optim(theta_1 ,fn = m2.mini.rc.lik,gr=m2.mini.rc.lik.grad,
+                method ="BFGS",control=list(trace=100,maxit=1000,REPORT=1),md=md,type=0,norm=c(1,1))
+  }
+
+  # start with B=1
+  if (method==2) {
+    model0 = list(A=rep(0,nf),B=seq(1,1,l=nf),eps_sd=rep(1,nf))
+    theta_0    = c(rnorm(nf-1),rep(-1,nf))
+    res = optim(theta_0 ,fn = m2.mini.rc.lik,
+                method ="BFGS",control=list(trace=100,maxit=300,REPORT=1),md=md,type=2,model0=model0)
+
+    theta_1    = c(res$par[1:(nf-1)],model0$B[2:nf],res$par[nf:(2*nf-1)])
+    res = optim(theta_1 ,fn = m2.mini.rc.lik,gr=m2.mini.rc.lik.grad,
+                method ="BFGS",control=list(trace=100,maxit=300,REPORT=1),md=md,type=0)
+  }
+
+  A      = c(0,res$par[1:(nf-1)])
+  B      = c(1,res$par[nf:(2*nf-2)])
+  eps_sd = exp(res$par[(2*nf-1):(3*nf-2)])
+
+  # extract EEm and EEsd
+  T1 = (V11 - spread(eps_sd,1,nf)^2)/spread(B,1,nf)^2
+  T2 = (V22 - spread(eps_sd,2,nf)^2)/spread(B,2,nf)^2
+  EEsd = sqrt(1/( T1^-1 + T2^-1))
+  R1 = (M1-spread(A,1,nf))/spread(B,1,nf)
+  R2 = (M2-spread(A,2,nf))/spread(B,2,nf)
+  EEm = EEsd^2 * ( T1^-1*R1 + T2^-1*R2)
+
+  # finally do the same on stayers, recover Em and Esd
+  Em  = (cstats$m1 -l1- A)/B
+  Esd = sqrt((cstats$sd1^2 - eps_sd^2)/B^2)
+
+  Esd[is.nan(Esd)]   = 0.001
+  EEsd[is.nan(EEsd)] = 0.001
+  EEm[is.nan(EEm)]   = 0.001
+
+  model        = list(A1=A,A2=A,B1=B,B2=B,EEm=EEm,EEsd=EEsd,Em=Em,Esd=Esd,Nm=Nm,nf=10,Ns=cstats$N,eps1_sd=eps_sd,eps2_sd=eps_sd)
+  stayer_share = sum(cstats$N)/(sum(cstats$N) + sum(mstats$N))
+  model$vdec   = m2.mini.vdec(model,1e6,stayer_share,"y1")
+
+  return(model)
+}
+
+
