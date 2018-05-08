@@ -89,7 +89,8 @@ the dependent variable is "y1". The firm identifier should be "f1".
 
 ```{r}
 # we set control parameters for the EM
-ctrl  = em.control( nplot=50,            # how often to plot (either wages, or model versus model0)
+ctrl  = em.control( nplot=10000,         # how often to plot (either wages, or model versus model0)
+                    ncat =2000,          # how often to show step increases (large to keep output small)
                     model0 = model,      # a model to compare estimates too (this is for testing)  
                     fixb=TRUE,           # impose fixed interactions over time
                     tol=1e-7,            # tolerance to stop EM      

@@ -149,6 +149,7 @@ lm.wfitc <- function(XX,YY,rw,C1,C0,meq) {
   return(fit)
 }
 
+# fits a weighted ols with non-negative constraints
 lm.wfitnn <- function(XX,YY,rw,floor = 0) {
 
   n = dim(XX)[2]
@@ -163,8 +164,9 @@ lm.wfitnn <- function(XX,YY,rw,floor = 0) {
   C1       = diag(n)
   C0       = rep(floor,n)
 
-  fit      = qprog(Dq,dq,C1,C0)
-  fit$solution = as.numeric(fit$thetahat)
+  #fit      = qprog(Dq,dq,C1,C0)
+  #fit$solution = as.numeric(fit$thetahat)
+  fit      = solve.QP(Dq,dq,C1,C0)
 
   return(fit)
 }
