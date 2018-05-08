@@ -1,5 +1,5 @@
 ---
-title: "BLM example using simulated data"
+title: "Mixture model example"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
   html_document:

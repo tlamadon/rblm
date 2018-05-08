@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BLM example using simulated data • rblm</title>
+<title>Interacted model example • rblm</title>
 <!-- jquery --><script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script><!-- Font Awesome icons --><link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
 <!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
@@ -45,12 +45,22 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
-      <a href="../articles/example.html">BLM example using simulated data</a>
+      <a href="../articles/example_mixt.html">Mixture model example</a>
+    </li>
+    <li>
+      <a href="../articles/example.html">Interacted model example</a>
     </li>
   </ul>
 </li>
       </ul>
-<ul class="nav navbar-nav navbar-right"></ul>
+<ul class="nav navbar-nav navbar-right">
+<li>
+  <a href="https://github.com/tlamadon/rblm">
+    <span class="fa fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul>
 </div>
 <!--/.nav-collapse -->
   </div>
@@ -62,7 +72,7 @@
       </header><div class="row">
   <div class="col-md-9">
     <div class="page-header toc-ignore">
-      <h1>BLM example using simulated data</h1>
+      <h1>Interacted model example</h1>
             
             <h4 class="date">08 May, 2018</h4>
           </div>
@@ -100,7 +110,7 @@ model<span class="op">$</span>Nm   =<span class="st"> </span><span class="dv">10
 
 <span class="co"># creating a simulated data set</span>
 ad =<span class="st">  </span><span class="kw"><a href="../reference/m2.mini.simulate.html">m2.mini.simulate</a></span>(model)</code></pre></div>
-<pre><code>## INFO [2018-05-08 10:54:00] computing var decomposition with ns=817440 nm=182550
+<pre><code>## INFO [2018-05-08 15:08:23] computing var decomposition with ns=817440 nm=182550
 ##   cor_kl cov_kl  var_k  var_l    rsq
 ## 1 0.2353 0.1394 0.7423 0.1183 0.7891</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># plot firm size distribution</span>
@@ -112,19 +122,19 @@ ad =<span class="st">  </span><span class="kw"><a href="../reference/m2.mini.sim
 <a href="#clustering-firms" class="anchor"></a>Clustering firms</h1>
 <p>We start by extracting the measures that will be used to cluster</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">ms    =<span class="st"> </span><span class="kw"><a href="../reference/grouping.getMeasures.html">grouping.getMeasures</a></span>(ad,<span class="st">"ecdf"</span>,<span class="dt">Nw=</span><span class="dv">20</span>,<span class="dt">y_var =</span> <span class="st">"y1"</span>)</code></pre></div>
-<pre><code>## INFO [2018-05-08 10:54:17] processing 3000 firms
-## INFO [2018-05-08 10:54:17] computing measures...
-## INFO [2018-05-08 10:54:17] computing weights...</code></pre>
+<pre><code>## INFO [2018-05-08 15:08:32] processing 3000 firms
+## INFO [2018-05-08 15:08:32] computing measures...
+## INFO [2018-05-08 15:08:32] computing weights...</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># then we group we choose k=10</span>
 grps  =<span class="st"> </span><span class="kw"><a href="../reference/grouping.classify.once.html">grouping.classify.once</a></span>(ms,<span class="dt">k =</span> <span class="dv">10</span>,<span class="dt">nstart =</span> <span class="dv">1000</span>,<span class="dt">iter.max =</span> <span class="dv">200</span>,<span class="dt">step=</span><span class="dv">250</span>)</code></pre></div>
-<pre><code>## INFO [2018-05-08 10:54:17] clustering T=101.015687, Nw=20 , measure=ecdf
-## INFO [2018-05-08 10:54:17] running weigthed kmeans step=250 total=1000
-## INFO [2018-05-08 10:54:17] nobs=3000 nmeasures=20
-## INFO [2018-05-08 10:54:20] [25%] tot=358.144483 best=358.144483 &lt;&lt;&lt;&lt;
-## INFO [2018-05-08 10:54:22] [50%] tot=358.144483 best=358.144483
-## INFO [2018-05-08 10:54:24] [75%] tot=358.144483 best=358.144483
-## INFO [2018-05-08 10:54:25] [100%] tot=358.144483 best=358.144483
-## INFO [2018-05-08 10:54:25] k=10 WSS=358.144483 nstart=1000 nfrims=3000</code></pre>
+<pre><code>## INFO [2018-05-08 15:08:32] clustering T=101.015687, Nw=20 , measure=ecdf
+## INFO [2018-05-08 15:08:32] running weigthed kmeans step=250 total=1000
+## INFO [2018-05-08 15:08:32] nobs=3000 nmeasures=20
+## INFO [2018-05-08 15:08:34] [25%] tot=358.144483 best=358.144483 &lt;&lt;&lt;&lt;
+## INFO [2018-05-08 15:08:35] [50%] tot=358.144483 best=358.144483
+## INFO [2018-05-08 15:08:36] [75%] tot=358.144483 best=358.144483
+## INFO [2018-05-08 15:08:37] [100%] tot=358.144483 best=358.144483
+## INFO [2018-05-08 15:08:37] k=10 WSS=358.144483 nstart=1000 nfrims=3000</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># finally we append the results to adata</span>
 ad   =<span class="st"> </span><span class="kw"><a href="../reference/grouping.append.html">grouping.append</a></span>(ad,grps<span class="op">$</span>best_cluster,<span class="dt">drop=</span>T)
 
@@ -139,7 +149,7 @@ ad   =<span class="st"> </span><span class="kw"><a href="../reference/grouping.a
 <a href="#estimating-the-model" class="anchor"></a>Estimating the model</h1>
 <p>This is a relatively old code, we will be pushing an update extremely soon!</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">res =<span class="st"> </span><span class="kw"><a href="../reference/m2.mini.estimate.html">m2.mini.estimate</a></span>(ad<span class="op">$</span>jdata,ad<span class="op">$</span>sdata,<span class="dt">model0 =</span> model,<span class="dt">method =</span> <span class="st">"fixb"</span>)</code></pre></div>
-<pre><code>## INFO [2018-05-08 10:54:27] computing var decomposition with ns=817439 nm=182564
+<pre><code>## INFO [2018-05-08 15:08:38] computing var decomposition with ns=817439 nm=182564
 ##   cor_kl cov_kl  var_k  var_l    rsq
 ## 1 0.2445 0.1416 0.7463 0.1122 0.7914</code></pre>
 <p><img src="example_files/figure-html/unnamed-chunk-4-1.png" width="672"></p>
