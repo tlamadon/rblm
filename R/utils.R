@@ -130,4 +130,131 @@ mcov <- function(x,y) {
   return(cov(x,y))
 }
 
+lm.wfitc <- function(XX,YY,rw,C1,C0,meq) {
 
+  S = apply(abs(XX),2,max)
+  XX2 = XX*spread(1/S,1,dim(XX)[1])
+  C12 = C1*spread(1/S,1,dim(C1)[1])
+
+  XXw      = diag(rw) %*% XX2
+  Dq       = t(XXw) %*% XX2
+  dq       = t(YY %*% XXw)
+
+  # do quadprod
+  fit      = solve.QP(Dq,dq,t(C12),C0,meq)
+
+  # rescale
+  fit$solution = fit$solution/S
+
+  return(fit)
+}
+
+lm.wfitnn <- function(XX,YY,rw,floor = 0) {
+
+  n = dim(XX)[2]
+  XX2 = XX
+  #   S = apply(abs(XX),2,max)
+  #   XX2 = XX*spread(1/S,1,dim(XX)[1])
+  #   C12 = C1*spread(1/S,1,dim(C1)[1])
+
+  XXw      = diag(rw) %*% XX2
+  Dq       = t(XXw) %*% XX2
+  dq       = t(YY %*% XXw)
+  C1       = diag(n)
+  C0       = rep(floor,n)
+
+  fit      = qprog(Dq,dq,C1,C0)
+  fit$solution = as.numeric(fit$thetahat)
+
+  return(fit)
+}
+
+# fits a linear problem with weights under constraints
+slm.wfitc <- function(XX,YY,rw,CS,scaling=0) {
+  nk = CS$nk
+  nf = CS$nf
+  YY = as.numeric(YY)
+  XX = as.matrix.csr(XX)
+  # to make sure the problem is positive semi definite, we add
+  # the equality constraints to the XX matrix! nice, no?
+
+  if (CS$meq>0) {
+    XXb = rbind(XX,  as.matrix.csr(CS$C[1:CS$meq,]))
+    YYb = c(YY,CS$H[1:CS$meq])
+    rwb  = c(rw,rep(1,CS$meq))
+  } else {
+    XXb = XX
+    YYb = YY
+    rwb = rw
+  }
+
+  t2 = as(dim(XXb)[1],"matrix.diag.csr")
+  t2@ra = rwb
+  XXw = t2 %*% XXb
+  Dq       = SparseM:::as.matrix(SparseM:::t(XXw) %*% XXb)
+  dq       = SparseM:::t(YYb %*% XXw)
+
+  # scaling
+  #
+  if (scaling>0) {
+    sc <- norm(Dq,"2")^scaling
+  } else {
+    sc=1
+  }
+
+  # do quadprod
+  tryCatch({
+    fit      = solve.QP(Dq/sc,dq/sc,t(CS$C)/sc,CS$H/sc,CS$meq)
+  }, error = function(err) {
+    browser()
+  })
+
+  return(fit)
+}
+
+#' Computes graph connectedness among the movers
+#' within each type and returns the smalless value
+#' @export
+model.connectiveness <- function(model,all=FALSE) {
+  EV = rep(0,model$nk)
+  pk1 = rdim(model$pk1,model$nf,model$nf,model$nk)
+  dd_post = data.table(melt(pk1,c('j1','j2','k')))
+  pp = model$NNm/sum(model$NNm)
+  dd_post <- dd_post[, pr_j1j2 := pp[j1,j2],list(j1,j2)  ]
+  dd_post <- dd_post[, pr_j1j2k := pr_j1j2*value]
+
+  for (kk in 1:model$nk) {
+    # compute adjency matrix
+    A1 = acast(dd_post[k==kk, list(pr=pr_j1j2k/sum(pr_j1j2k),j2,j1)],j1~j2,value.var = "pr")
+    A2 = acast(dd_post[k==kk, list(pr=pr_j1j2k/sum(pr_j1j2k),j2,j1)],j2~j1,value.var = "pr")
+    # construct Laplacian
+    A = 0.5*A1 + 0.5*A2
+    D = diag( rowSums(A)^(-0.5) )
+    L = diag(model$nf) - D%*%A%*%D
+    EV[kk] = sort(eigen(L)$values)[2]
+    #print(eigen(L)$values)
+  }
+  if (all==TRUE) return(EV);
+  return(min(abs(EV)))
+}
+
+#' @export
+wplot <- function(Wm) {
+  dd = melt(Wm,c('l','k'))
+  ggplot(dd,aes(x=factor(l),color=factor(k),group=factor(k),y=value)) + geom_line() + theme_bw()
+}
+
+#' @export
+mplot <- function(M) {
+  mm = melt(M,c('i','j'))
+  #mm$i = factor(mm$i)
+  #mm$j = factor(mm$j)
+  mm = mm[mm$value>0,]
+  ggplot(mm,aes(x=j,y=i,fill=value)) + geom_tile() + theme_bw() + scale_y_reverse()
+}
+
+#' @export
+pplot <- function(pk0) {
+  dd = melt(pk0,c('l','k'))
+  ggplot(dd,aes(x=factor(l),y=value,fill=factor(k))) + geom_bar(position="stack",stat = "identity") + theme_bw()
+}

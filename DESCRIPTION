@@ -34,7 +34,8 @@ Depends:
     gridExtra,
     foreign,
     futile.logger,
-    Hmisc
+    Hmisc,
+    plyr
 Suggests:
     knitr,
     testthat

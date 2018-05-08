@@ -4,10 +4,14 @@ reference:
       Functions to compute the grouping on firms
     contents:
       - starts_with("grouping")
-  - title: "Estimating"
+  - title: "Estimating Interacted model"
     desc: "Functions to estimate the interacted model using the clustered data."
     contents:
       - starts_with("m2.mini")
+  - title: "Estimating Mixture model"
+    desc: "Functions to estimate the mixture model using the clustered data."
+    contents:
+      - starts_with("m2.mixt")
 articles:
   - title: "Tutorial"
     desc: >
@@ -15,3 +19,4 @@ articles:
       apps.
     contents:
     - example
+    - example_mixt

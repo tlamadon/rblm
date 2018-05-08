@@ -4,6 +4,8 @@ R package for estimation of complementarities in models with two-sided heterogen
 
 There is a simple example on simulated data here: [turorial](https://tlamadon.github.io/rblm/articles/example.html).
 
+Link to github repo: [github](https://github.com/tlamadon/rblm).
+
 ## Install from github
 
 To install directly the package, run the following:

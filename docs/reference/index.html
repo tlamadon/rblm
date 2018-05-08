@@ -68,6 +68,9 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
+      <a href="../articles/example_mixt.html">BLM example using simulated data</a>
+    </li>
+    <li>
       <a href="../articles/example.html">BLM example using simulated data</a>
     </li>
   </ul>
@@ -149,7 +152,7 @@ classification algorithm</p></td>
       </tbody><tbody>
         <tr>
           <th colspan="2">
-            <h2 id="section-estimating" class="hasAnchor"><a href="#section-estimating" class="anchor"></a>Estimating</h2>
+            <h2 id="section-estimating-interacted-model" class="hasAnchor"><a href="#section-estimating-interacted-model" class="anchor"></a>Estimating Interacted model</h2>
             <p class="section-desc"><p>Functions to estimate the interacted model using the clustered data.</p></p>
           </th>
         </tr>
@@ -276,6 +279,69 @@ and we want to do it in a non-stationary way.</p></td>
           </td>
           <td><p>estimates interacted model using quasi-linkelood on the data moments</p></td>
         </tr>
+      </tbody><tbody>
+        <tr>
+          <th colspan="2">
+            <h2 id="section-estimating-mixture-model" class="hasAnchor"><a href="#section-estimating-mixture-model" class="anchor"></a>Estimating Mixture model</h2>
+            <p class="section-desc"><p>Functions to estimate the mixture model using the clustered data.</p></p>
+          </th>
+        </tr>
+        <tr>
+          <!--  -->
+          <td>
+            <p><code><a href="m2.mixt.estimate.all.html">m2.mixt.estimate.all</a></code> </p>
+          </td>
+          <td><p>Estimates the static mixture model on 2 periods</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="m2.mixt.meaneffect.html">m2.mixt.meaneffect</a></code> </p>
+          </td>
+          <td><p>Compute mean effects</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="m2.mixt.movers.html">m2.mixt.movers</a></code> </p>
+          </td>
+          <td><p>Estimates the static model parameters for movers</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="m2.mixt.simulate.movers.html">m2.mixt.simulate.movers</a></code> </p>
+          </td>
+          <td><p>Using the model, simulates a dataset of movers</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="m2.mixt.simulate.sim.html">m2.mixt.simulate.sim</a></code> </p>
+          </td>
+          <td><p>Simulates data (movers and stayers) and attached firms ids. Firms have all same expected size.</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="m2.mixt.simulate.stayers.html">m2.mixt.simulate.stayers</a></code> </p>
+          </td>
+          <td><p>Using the model, simulates a dataset of stayers.</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="m2.mixt.simulate.stayers.withx.html">m2.mixt.simulate.stayers.withx</a></code> </p>
+          </td>
+          <td><p>Using the model, simulates a dataset of stayers.</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="m2.mixt.stayers.html">m2.mixt.stayers</a></code> </p>
+          </td>
+          <td><p>use the marginal distributions to extract type distributions
+within each cluster and observable characteristics</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="m2.mixt.vdec.html">m2.mixt.vdec</a></code> </p>
+          </td>
+          <td><p>Computes the variance decomposition by simulation</p></td>
+        </tr>
       </tbody>
       </table>
     </div>
@@ -285,7 +351,8 @@ and we want to do it in a non-stationary way.</p></td>
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#section-clustering">Clustering</a></li>
-      <li><a href="#section-estimating">Estimating</a></li>
+      <li><a href="#section-estimating-interacted-model">Estimating Interacted model</a></li>
+      <li><a href="#section-estimating-mixture-model">Estimating Mixture model</a></li>
     </ul>
   </div>
 </div>

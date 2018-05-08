@@ -1,0 +1,114 @@
+---
+title: "BLM example using simulated data"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+  toc: true
+toc_depth: 3
+toc_float:
+  collapsed: false
+smooth_scroll: false
+editor_options:
+  chunk_output_type: console
+---
+
+Simulating and estimating the mixture model
+
+```{r,message=FALSE,warning=FALSE}
+require(rblm)
+require(knitr)
+require(kableExtra)
+options(knitr.table.format = "html") 
+```
+
+
+# Simulating a data set
+
+The interacted model has the following equations:
+
+$$  Pr[ Y_{it} \leq y | k,\ell ] = \Phi( \mu_{k\ell}, \sigma_{k\ell}) $$
+
+```{r}
+set.seed(324313)
+model = m2.mixt.new(nk=3,nf=5,fixb=T,stationary = T)
+
+# simple complementatiry
+model$A1 = seq(0.1,1,l=model$nf) %o% seq(0.1,1,l=model$nk)
+model$A2 = model$A1
+
+# small variance
+model$S1[] = 0.2
+model$S2[] = 0.2
+
+# simple sorting
+model$pk0[1,,] = exp(3*model$A1)/rowSums(exp(3*model$A1))
+
+# setting the number of movers and stayers 
+model$NNs   = array(300000/model$nf,model$nf)
+model$NNm   = model$nf*toeplitz(ceiling(seq(100,10,l=model$nf)))
+
+# creating a simulated data set
+ad =  m2.mixt.simulate.sim(model,fsize = 40)
+
+# plot firm size distribution
+ggplot(ad$sdata[,.N,f1],aes(x=N)) + geom_histogram(binwidth=1) + theme_bw()
+
+```
+
+# Clustering firms 
+
+We start by extracting the measures that will be used to cluster
+```{r}
+
+# constructing the measures, we use empirical CDF at each firm
+ms    = grouping.getMeasures(ad,            # the data
+                             "ecdf",        # the type of moments to construct at the firm level
+                             Nw=10,         # number of point of support to use for the method
+                             y_var = "y1")  # variable to use to construct moments
+
+# classify into groups
+grps  = grouping.classify.once(ms,                  # input the measures to use
+                               k = 5,               # number of groups
+                               nstart = 1000,       # number of starting values for kmean
+                               iter.max = 200,      # max number of iterations for each kmean
+                               step=250)            # how often to show output
+
+# finally we append the results to adata
+ad   = grouping.append(ad,grps$best_cluster,drop=T)
+
+# we can also check the classification
+ggplot(ad$sdata[,.N,list(j1,j1true)],aes(x=j1true,y=j1,size=N)) + geom_point() + theme_bw() +
+  scale_x_continuous("true type") + scale_y_continuous("estimated group")
+```
+
+In the previous command we tell rblm that we want to use the firm
+specific empirical measure "ecdf" with 20 points of supports and that
+the dependent variable is "y1". The firm identifier should be "f1".
+
+# Estimating the model 
+
+```{r}
+# we set control parameters for the EM
+ctrl  = em.control( nplot=50,            # how often to plot (either wages, or model versus model0)
+                    model0 = model,      # a model to compare estimates too (this is for testing)  
+                    fixb=TRUE,           # impose fixed interactions over time
+                    tol=1e-7,            # tolerance to stop EM      
+                    est_rep=2,           # number of starting values to use (we usually use 50)
+                    est_nbest=1,         # how many best liklihood to choose the best connected model from (we usually use 10)
+                    sdata_subsample=0.1) # whether to sub-sample the stayers in estimation
+
+res = m2.mixt.estimate.all(sim=ad,         # the data
+                           nk=model$nk,    # number of worker types (we use here the same as in simulation)
+                           ctrl=ctrl)      # parameters to control the EM
+```
+
+
+# Plotting the results
+
+```{r}
+wplot(res$model$A1)
+wplot(model$A1)
+pplot(res$model$pk0[1,,])
+pplot(model$pk0[1,,])
+```
+
