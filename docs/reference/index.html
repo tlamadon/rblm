@@ -97,7 +97,7 @@
     <div class="page-header">
       <h1>
         Reference
-        <small>version&nbsp;0.2</small>
+        <small>version&nbsp;0.3</small>
       </h1>
     </div>
 
@@ -119,15 +119,10 @@
         <tr>
           <!--  -->
           <td>
-            <p><code><a href="grouping.append.html">grouping.append</a></code> </p>
+            <p><code><a href="grouping.getMeasures.html">grouping.getMeasures</a></code> </p>
           </td>
-          <td><p>Append result of a grouping to a data-set</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="grouping.classify.once.html">grouping.classify.once</a></code> </p>
-          </td>
-          <td><p>clusters firms based on their cross-sectional wage distributions</p></td>
+          <td><p>Extract the measurement matrix to be given to the
+classification algorithm</p></td>
         </tr><tr>
           <!--  -->
           <td>
@@ -137,22 +132,15 @@
         </tr><tr>
           <!--  -->
           <td>
-            <p><code><a href="grouping.computeobj.html">grouping.computeobj</a></code> </p>
+            <p><code><a href="grouping.classify.once.html">grouping.classify.once</a></code> </p>
           </td>
-          <td><p>Compute the objective function of the clustering</p></td>
+          <td><p>clusters firms based on their cross-sectional wage distributions</p></td>
         </tr><tr>
           <!--  -->
           <td>
-            <p><code><a href="grouping.getMeasures.html">grouping.getMeasures</a></code> </p>
+            <p><code><a href="grouping.append.html">grouping.append</a></code> </p>
           </td>
-          <td><p>Extract the measurement matrix to be given to the
-classification algorithm</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="grouping.infos.html">grouping.infos</a></code> </p>
-          </td>
-          <td><p>extract information</p></td>
+          <td><p>Append result of a grouping to a data-set</p></td>
         </tr>
       </tbody><tbody>
         <tr>
@@ -164,9 +152,39 @@ classification algorithm</p></td>
         <tr>
           <!--  -->
           <td>
+            <p><code><a href="m2.mini.new.html">m2.mini.new</a></code> </p>
+          </td>
+          <td><p>Model creation</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="m2.mini.simulate.html">m2.mini.simulate</a></code> </p>
+          </td>
+          <td><p>simulate a dataset according to the model</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="m2.miniql.estimate.html">m2.miniql.estimate</a></code> </p>
+          </td>
+          <td><p>estimates interacted model using quasi-linkelood on the data moments</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
             <p><code><a href="m2.mini.estimate.html">m2.mini.estimate</a></code> </p>
           </td>
           <td><p>estimates interacted model</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="m2.mini.plotw.html">m2.mini.plotw</a></code> </p>
+          </td>
+          <td><p>plotting mini model</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="m2.mini.vdec.html">m2.mini.vdec</a></code> </p>
+          </td>
+          <td><p>Computes the variance decomposition by simulation</p></td>
         </tr><tr>
           <!--  -->
           <td>
@@ -179,110 +197,6 @@ classification algorithm</p></td>
             <p><code><a href="m2.mini.impute.stayers.html">m2.mini.impute.stayers</a></code> </p>
           </td>
           <td><p>imputes data according to the model</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="m2.mini.liml.int.fixb.html">m2.mini.liml.int.fixb</a></code> </p>
-          </td>
-          <td><p>this function uses LIML to estimate a model with a given normalization
-and we want to do it in a non-stationary way.</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="m2.mini.liml.int.prof.html">m2.mini.liml.int.prof</a></code> </p>
-          </td>
-          <td><p>this function uses LIML to estimate a model with a given normalization.
-In estimation the interaction terms B are profiled out in period 2 first,
-then they are used to recover the intercepts in both periods.</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="m2.mini.liml.int.html">m2.mini.liml.int</a></code> </p>
-          </td>
-          <td><p>this function uses LIML to estimate a model with a given normalization
-and we want to do it in a non-stationary way</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="m2.mini.liml.int2.html">m2.mini.liml.int2</a></code> </p>
-          </td>
-          <td><p>this function uses LIML to estimate a model with a given normalization
-and we want to do it in a non-stationary way.</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="m2.mini.liml.int3.html">m2.mini.liml.int3</a></code> </p>
-          </td>
-          <td><p>this function uses LIML to estimate a model with a given normalization
-and we want to do it in a non-stationary way.</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="m2.mini.linear.int.html">m2.mini.linear.int</a></code> </p>
-          </td>
-          <td><p>this function uses performs an estimation like the LIML but forcing
-all the Bs=1. This is like an AKM estimator.</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="m2.mini.new.html">m2.mini.new</a></code> </p>
-          </td>
-          <td><p>Model creation</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="m2.mini.nls.int2.html">m2.mini.nls.int2</a></code> </p>
-          </td>
-          <td><p>this function uses LIML to estimate a model with a given normalization
-and we want to do it in a non-stationary way.</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="m2.mini.plotw.html">m2.mini.plotw</a></code> </p>
-          </td>
-          <td><p>plotting mini model</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="m2.mini.rc.lik.grad.html">m2.mini.rc.lik.grad</a></code> </p>
-          </td>
-          <td><p>gradient function</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="m2.mini.rc.lik.html">m2.mini.rc.lik</a></code> </p>
-          </td>
-          <td><p>Random coefficient estimator for the mini-model</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="m2.mini.simulate.movers.html">m2.mini.simulate.movers</a></code> </p>
-          </td>
-          <td><p>simulate movers according to the model</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="m2.mini.simulate.html">m2.mini.simulate</a></code> </p>
-          </td>
-          <td><p>simulate a dataset according to the model</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="m2.mini.simulate.stayers.html">m2.mini.simulate.stayers</a></code> </p>
-          </td>
-          <td><p>simulate movers according to the model</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="m2.mini.vdec.html">m2.mini.vdec</a></code> </p>
-          </td>
-          <td><p>Computes the variance decomposition by simulation</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="m2.miniql.estimate.html">m2.miniql.estimate</a></code> </p>
-          </td>
-          <td><p>estimates interacted model using quasi-linkelood on the data moments</p></td>
         </tr>
       </tbody><tbody>
         <tr>
@@ -294,27 +208,10 @@ and we want to do it in a non-stationary way.</p></td>
         <tr>
           <!--  -->
           <td>
-            <p><code><a href="m2.mixt.estimate.all.html">m2.mixt.estimate.all</a></code> </p>
+            <p><code><a href="m2.mixt.new.html">m2.mixt.new</a></code> </p>
           </td>
-          <td><p>Estimates the static mixture model on 2 periods</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="m2.mixt.meaneffect.html">m2.mixt.meaneffect</a></code> </p>
-          </td>
-          <td><p>Compute mean effects</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="m2.mixt.movers.html">m2.mixt.movers</a></code> </p>
-          </td>
-          <td><p>Estimates the static model parameters for movers</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="m2.mixt.simulate.movers.html">m2.mixt.simulate.movers</a></code> </p>
-          </td>
-          <td><p>Using the model, simulates a dataset of movers</p></td>
+          <td><p>create a random model for EM with
+endogenous mobility with multinomial pr</p></td>
         </tr><tr>
           <!--  -->
           <td>
@@ -324,28 +221,27 @@ and we want to do it in a non-stationary way.</p></td>
         </tr><tr>
           <!--  -->
           <td>
-            <p><code><a href="m2.mixt.simulate.stayers.html">m2.mixt.simulate.stayers</a></code> </p>
+            <p><code><a href="m2.mixt.estimate.all.html">m2.mixt.estimate.all</a></code> </p>
           </td>
-          <td><p>Using the model, simulates a dataset of stayers.</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="m2.mixt.simulate.stayers.withx.html">m2.mixt.simulate.stayers.withx</a></code> </p>
-          </td>
-          <td><p>Using the model, simulates a dataset of stayers.</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="m2.mixt.stayers.html">m2.mixt.stayers</a></code> </p>
-          </td>
-          <td><p>use the marginal distributions to extract type distributions
-within each cluster and observable characteristics</p></td>
+          <td><p>Estimates the static mixture model on 2 periods</p></td>
         </tr><tr>
           <!--  -->
           <td>
             <p><code><a href="m2.mixt.vdec.html">m2.mixt.vdec</a></code> </p>
           </td>
           <td><p>Computes the variance decomposition by simulation</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="m2.mixt.wplot.html">m2.mixt.wplot</a></code> </p>
+          </td>
+          <td><p>plots the wages of a model</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="m2.mixt.pplot.html">m2.mixt.pplot</a></code> </p>
+          </td>
+          <td><p>plots the proportions of a model</p></td>
         </tr>
       </tbody>
       </table>

@@ -110,7 +110,7 @@ model<span class="op">$</span>Nm   =<span class="st"> </span><span class="dv">10
 
 <span class="co"># creating a simulated data set</span>
 ad =<span class="st">  </span><span class="kw"><a href="../reference/m2.mini.simulate.html">m2.mini.simulate</a></span>(model)</code></pre></div>
-<pre><code>## INFO [2018-05-08 15:08:23] computing var decomposition with ns=817440 nm=182550
+<pre><code>## INFO [2018-05-08 15:30:52] computing var decomposition with ns=817440 nm=182550
 ##   cor_kl cov_kl  var_k  var_l    rsq
 ## 1 0.2353 0.1394 0.7423 0.1183 0.7891</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># plot firm size distribution</span>
@@ -122,19 +122,19 @@ ad =<span class="st">  </span><span class="kw"><a href="../reference/m2.mini.sim
 <a href="#clustering-firms" class="anchor"></a>Clustering firms</h1>
 <p>We start by extracting the measures that will be used to cluster</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">ms    =<span class="st"> </span><span class="kw"><a href="../reference/grouping.getMeasures.html">grouping.getMeasures</a></span>(ad,<span class="st">"ecdf"</span>,<span class="dt">Nw=</span><span class="dv">20</span>,<span class="dt">y_var =</span> <span class="st">"y1"</span>)</code></pre></div>
-<pre><code>## INFO [2018-05-08 15:08:32] processing 3000 firms
-## INFO [2018-05-08 15:08:32] computing measures...
-## INFO [2018-05-08 15:08:32] computing weights...</code></pre>
+<pre><code>## INFO [2018-05-08 15:31:01] processing 3000 firms
+## INFO [2018-05-08 15:31:01] computing measures...
+## INFO [2018-05-08 15:31:01] computing weights...</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># then we group we choose k=10</span>
 grps  =<span class="st"> </span><span class="kw"><a href="../reference/grouping.classify.once.html">grouping.classify.once</a></span>(ms,<span class="dt">k =</span> <span class="dv">10</span>,<span class="dt">nstart =</span> <span class="dv">1000</span>,<span class="dt">iter.max =</span> <span class="dv">200</span>,<span class="dt">step=</span><span class="dv">250</span>)</code></pre></div>
-<pre><code>## INFO [2018-05-08 15:08:32] clustering T=101.015687, Nw=20 , measure=ecdf
-## INFO [2018-05-08 15:08:32] running weigthed kmeans step=250 total=1000
-## INFO [2018-05-08 15:08:32] nobs=3000 nmeasures=20
-## INFO [2018-05-08 15:08:34] [25%] tot=358.144483 best=358.144483 &lt;&lt;&lt;&lt;
-## INFO [2018-05-08 15:08:35] [50%] tot=358.144483 best=358.144483
-## INFO [2018-05-08 15:08:36] [75%] tot=358.144483 best=358.144483
-## INFO [2018-05-08 15:08:37] [100%] tot=358.144483 best=358.144483
-## INFO [2018-05-08 15:08:37] k=10 WSS=358.144483 nstart=1000 nfrims=3000</code></pre>
+<pre><code>## INFO [2018-05-08 15:31:01] clustering T=101.015687, Nw=20 , measure=ecdf
+## INFO [2018-05-08 15:31:01] running weigthed kmeans step=250 total=1000
+## INFO [2018-05-08 15:31:01] nobs=3000 nmeasures=20
+## INFO [2018-05-08 15:31:02] [25%] tot=358.144483 best=358.144483 &lt;&lt;&lt;&lt;
+## INFO [2018-05-08 15:31:04] [50%] tot=358.144483 best=358.144483
+## INFO [2018-05-08 15:31:05] [75%] tot=358.144483 best=358.144483
+## INFO [2018-05-08 15:31:06] [100%] tot=358.144483 best=358.144483
+## INFO [2018-05-08 15:31:06] k=10 WSS=358.144483 nstart=1000 nfrims=3000</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># finally we append the results to adata</span>
 ad   =<span class="st"> </span><span class="kw"><a href="../reference/grouping.append.html">grouping.append</a></span>(ad,grps<span class="op">$</span>best_cluster,<span class="dt">drop=</span>T)
 
@@ -149,7 +149,7 @@ ad   =<span class="st"> </span><span class="kw"><a href="../reference/grouping.a
 <a href="#estimating-the-model" class="anchor"></a>Estimating the model</h1>
 <p>This is a relatively old code, we will be pushing an update extremely soon!</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">res =<span class="st"> </span><span class="kw"><a href="../reference/m2.mini.estimate.html">m2.mini.estimate</a></span>(ad<span class="op">$</span>jdata,ad<span class="op">$</span>sdata,<span class="dt">model0 =</span> model,<span class="dt">method =</span> <span class="st">"fixb"</span>)</code></pre></div>
-<pre><code>## INFO [2018-05-08 15:08:38] computing var decomposition with ns=817439 nm=182564
+<pre><code>## INFO [2018-05-08 15:31:07] computing var decomposition with ns=817439 nm=182564
 ##   cor_kl cov_kl  var_k  var_l    rsq
 ## 1 0.2445 0.1416 0.7463 0.1122 0.7914</code></pre>
 <p><img src="example_files/figure-html/unnamed-chunk-4-1.png" width="672"></p>

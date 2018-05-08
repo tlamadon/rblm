@@ -4,8 +4,8 @@
 # ------------- Initiliazing functions ---------------------
 
 
-# create a random model for EM with
-# endogenous mobility with multinomial pr
+#' create a random model for EM with
+#' endogenous mobility with multinomial pr
 #' @export
 m2.mixt.new <-function(nk,nf,fixb=F,stationary=F) {
 

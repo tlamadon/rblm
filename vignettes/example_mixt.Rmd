@@ -107,9 +107,9 @@ res = m2.mixt.estimate.all(sim=ad,         # the data
 # Plotting the results
 
 ```{r}
-wplot(res$model$A1)
-wplot(model$A1)
-pplot(res$model$pk0[1,,])
-pplot(model$pk0[1,,])
+m2.mixt.wplot(res$model$A1)
+m2.mixt.wplot(model$A1)
+m2.mixt.pplot(res$model$pk0[1,,])
+m2.mixt.pplot(model$pk0[1,,])
 ```
 

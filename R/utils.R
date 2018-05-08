@@ -240,8 +240,9 @@ model.connectiveness <- function(model,all=FALSE) {
   return(min(abs(EV)))
 }
 
+#' plots the wages of a model
 #' @export
-wplot <- function(Wm) {
+m2.mixt.wplot <- function(Wm) {
   dd = melt(Wm,c('l','k'))
   ggplot(dd,aes(x=factor(l),color=factor(k),group=factor(k),y=value)) + geom_line() + theme_bw()
 }
@@ -255,8 +256,9 @@ mplot <- function(M) {
   ggplot(mm,aes(x=j,y=i,fill=value)) + geom_tile() + theme_bw() + scale_y_reverse()
 }
 
+#' plots the proportions of a model
 #' @export
-pplot <- function(pk0) {
+m2.mixt.pplot <- function(pk0) {
   dd = melt(pk0,c('l','k'))
   ggplot(dd,aes(x=factor(l),y=value,fill=factor(k))) + geom_bar(position="stack",stat = "identity") + theme_bw()
 }

@@ -3,15 +3,30 @@ reference:
     desc: >
       Functions to compute the grouping on firms
     contents:
-      - starts_with("grouping")
+      - grouping.getMeasures
+      - grouping.classify
+      - grouping.classify.once
+      - grouping.append
   - title: "Estimating Interacted model"
     desc: "Functions to estimate the interacted model using the clustered data."
     contents:
-      - starts_with("m2.mini")
+      - m2.mini.new
+      - m2.mini.simulate
+      - m2.miniql.estimate
+      - m2.mini.estimate
+      - m2.mini.plotw
+      - m2.mini.vdec
+      - m2.mini.impute.movers
+      - m2.mini.impute.stayers
   - title: "Estimating Mixture model"
     desc: "Functions to estimate the mixture model using the clustered data."
     contents:
-      - starts_with("m2.mixt")
+      - m2.mixt.new
+      - m2.mixt.simulate.sim
+      - m2.mixt.estimate.all
+      - m2.mixt.vdec
+      - m2.mixt.wplot
+      - m2.mixt.pplot
 articles:
   - title: "Tutorial"
     desc: >
