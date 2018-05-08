@@ -65,6 +65,37 @@ lm.wfitc <- function(XX,YY,rw,C1,C0,meq) {
   return(fit)
 }
 
+#' simulate a dataset according to the model
+#' @export
+m2.mini.simulate <- function(model) {
+
+  # compute decomposition
+  stayer_share = sum(model$Ns)/(sum(model$Ns)+sum(model$Nm))
+  model$vdec   = m2.mini.vdec(model,1e6,stayer_share,"y1")
+
+  sdata = m2.mini.simulate.stayers(model,model$Ns)
+  jdata = m2.mini.simulate.movers(model,model$Nm)
+
+  # randomly assign firm IDs
+  sdata <- sdata[,f1:=paste("F",j1 + model$nf*(sample.int(.N/100,.N,replace=T)-1),sep=""),j1]
+  sdata <- sdata[,j1b:=j1]
+  sdata <- sdata[,j1true := j1]
+  jdata <- jdata[,j1true := j1][,j2true := j2]
+  jdata <- jdata[,j1c:=j1]
+  jdata <- jdata[,f1:=sample( unique(sdata[j1b==j1c,f1]) ,.N,replace=T),j1c]
+  jdata <- jdata[,j2c:=j2]
+  jdata <- jdata[,f2:=sample( unique(sdata[j1b==j2c,f1])  ,.N,replace=T),j2c]
+  jdata$j2c=NULL
+  jdata$j1c=NULL
+  sdata$j1b=NULL
+
+  # combine the movers and stayers, ad stands for all data:
+  ad = list(sdata=sdata,jdata=jdata)
+
+  return(ad)
+}
+
+
 #' simulate movers according to the model
 #' @export
 m2.mini.simulate.movers <- function(model,NNm) {

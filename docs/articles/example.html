@@ -64,7 +64,7 @@
     <div class="page-header toc-ignore">
       <h1>BLM example using simulated data</h1>
             
-            <h4 class="date">07 May, 2018</h4>
+            <h4 class="date">08 May, 2018</h4>
           </div>
 
     
@@ -78,44 +78,32 @@
 <div id="simulating-a-data-set" class="section level1">
 <h1 class="hasAnchor">
 <a href="#simulating-a-data-set" class="anchor"></a>Simulating a data set</h1>
+<p>The interacted model has the following equations:</p>
+<p><span class="math display">\[  y_{it} = a_t(k_{it}) + b_t(k_{it}) \cdot \alpha_i + \epsilon_{it}\]</span> where in the model we define the average worker quality conditional on a firm type:</p>
+<p><span class="math display">\[ \text{Em} =  E[ \alpha_i |k,t=1  ]  \]</span></p>
+<p>and the average wroker quality conditional on a job change: <span class="math display">\[ \text{EEm} =  E[ \alpha_i |k_1{=}k,k_2{=}k',m{=}1  ]  \]</span></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">set.seed</span>(<span class="dv">324313</span>)
 model =<span class="st"> </span><span class="kw"><a href="../reference/m2.mini.new.html">m2.mini.new</a></span>(<span class="dv">10</span>,<span class="dt">serial =</span> F,<span class="dt">fixb=</span>T)
 
 <span class="co"># we set the parameters to something simple</span>
-model<span class="op">$</span>A1 =<span class="st"> </span><span class="kw">seq</span>(<span class="dv">0</span>,<span class="dv">2</span>,<span class="dt">l=</span>model<span class="op">$</span>nf)
-model<span class="op">$</span>A2 =<span class="st"> </span><span class="kw">seq</span>(<span class="dv">0</span>,<span class="dv">2</span>,<span class="dt">l=</span>model<span class="op">$</span>nf)
-model<span class="op">$</span>B1 =<span class="st"> </span><span class="kw">seq</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dt">l=</span>model<span class="op">$</span>nf) <span class="co"># adding complementarity</span>
-model<span class="op">$</span>B2 =<span class="st"> </span><span class="kw">seq</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dt">l=</span>model<span class="op">$</span>nf)
-model<span class="op">$</span>Em =<span class="st"> </span><span class="kw">seq</span>(<span class="dv">0</span>,<span class="dv">1</span>,<span class="dt">l=</span>model<span class="op">$</span>nf) <span class="co"># adding sorting</span>
+model<span class="op">$</span>A1 =<span class="st"> </span><span class="kw">seq</span>(<span class="dv">0</span>,<span class="dv">2</span>,<span class="dt">l=</span>model<span class="op">$</span>nf) <span class="co"># setting increasing intercepts</span>
+model<span class="op">$</span>B1 =<span class="st"> </span><span class="kw">seq</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dt">l=</span>model<span class="op">$</span>nf) <span class="co"># adding complementarity (increasing interactions)</span>
+model<span class="op">$</span>Em =<span class="st"> </span><span class="kw">seq</span>(<span class="dv">0</span>,<span class="dv">1</span>,<span class="dt">l=</span>model<span class="op">$</span>nf) <span class="co"># adding sorting (mean type of workers is increasing in k)</span>
 
+<span class="co"># we make the model stationary (same in both periods)</span>
+model<span class="op">$</span>A2 =<span class="st"> </span>model<span class="op">$</span>A1
+model<span class="op">$</span>B2 =<span class="st"> </span>model<span class="op">$</span>B1
+
+<span class="co"># setting the number of movers and stayers </span>
 model<span class="op">$</span>Ns   =<span class="st"> </span><span class="kw">array</span>(<span class="dv">300000</span><span class="op">/</span>model<span class="op">$</span>nf,model<span class="op">$</span>nf)
 model<span class="op">$</span>Nm   =<span class="st"> </span><span class="dv">10</span><span class="op">*</span><span class="kw">toeplitz</span>(<span class="kw">ceiling</span>(<span class="kw">seq</span>(<span class="dv">100</span>,<span class="dv">10</span>,<span class="dt">l=</span>model<span class="op">$</span>nf)))
-sdata =<span class="st"> </span><span class="kw"><a href="../reference/m2.mini.simulate.stayers.html">m2.mini.simulate.stayers</a></span>(model,model<span class="op">$</span>Ns)
-jdata =<span class="st"> </span><span class="kw"><a href="../reference/m2.mini.simulate.movers.html">m2.mini.simulate.movers</a></span>(model,model<span class="op">$</span>Nm)
 
-<span class="co"># compute decomposition</span>
-stayer_share =<span class="st"> </span><span class="kw">sum</span>(model<span class="op">$</span>Ns)<span class="op">/</span>(<span class="kw">sum</span>(model<span class="op">$</span>Ns)<span class="op">+</span><span class="kw">sum</span>(model<span class="op">$</span>Nm))
-model<span class="op">$</span>vdec   =<span class="st"> </span><span class="kw"><a href="../reference/m2.mini.vdec.html">m2.mini.vdec</a></span>(model,<span class="fl">1e6</span>,stayer_share,<span class="st">"y1"</span>)</code></pre></div>
-<pre><code>## INFO [2018-05-07 16:39:11] computing var decomposition with ns=817440 nm=182550
+<span class="co"># creating a simulated data set</span>
+ad =<span class="st">  </span><span class="kw"><a href="../reference/m2.mini.simulate.html">m2.mini.simulate</a></span>(model)</code></pre></div>
+<pre><code>## INFO [2018-05-08 10:54:00] computing var decomposition with ns=817440 nm=182550
 ##   cor_kl cov_kl  var_k  var_l    rsq
-## 1 0.2352   0.14 0.7405 0.1195 0.7881</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># randomly assign firm IDs</span>
-sdata &lt;-<span class="st"> </span>sdata[,f1<span class="op">:</span><span class="er">=</span><span class="kw">paste</span>(<span class="st">"F"</span>,j1 <span class="op">+</span><span class="st"> </span>model<span class="op">$</span>nf<span class="op">*</span>(<span class="kw">sample.int</span>(.N<span class="op">/</span><span class="dv">100</span>,.N,<span class="dt">replace=</span>T)<span class="op">-</span><span class="dv">1</span>),<span class="dt">sep=</span><span class="st">""</span>),j1]
-sdata &lt;-<span class="st"> </span>sdata[,j1b<span class="op">:</span><span class="er">=</span>j1]
-sdata &lt;-<span class="st"> </span>sdata[,j1true <span class="op">:</span><span class="er">=</span><span class="st"> </span>j1]
-jdata &lt;-<span class="st"> </span>jdata[,j1true <span class="op">:</span><span class="er">=</span><span class="st"> </span>j1][,j2true <span class="op">:</span><span class="er">=</span><span class="st"> </span>j2]
-jdata &lt;-<span class="st"> </span>jdata[,j1c<span class="op">:</span><span class="er">=</span>j1]
-jdata &lt;-<span class="st"> </span>jdata[,f1<span class="op">:</span><span class="er">=</span><span class="kw">sample</span>( <span class="kw">unique</span>(sdata[j1b<span class="op">==</span>j1c,f1]) ,.N,<span class="dt">replace=</span>T),j1c]
-jdata &lt;-<span class="st"> </span>jdata[,j2c<span class="op">:</span><span class="er">=</span>j2]
-jdata &lt;-<span class="st"> </span>jdata[,f2<span class="op">:</span><span class="er">=</span><span class="kw">sample</span>( <span class="kw">unique</span>(sdata[j1b<span class="op">==</span>j2c,f1])  ,.N,<span class="dt">replace=</span>T),j2c]
-jdata<span class="op">$</span>j2c=<span class="ot">NULL</span>
-jdata<span class="op">$</span>j1c=<span class="ot">NULL</span>
-sdata<span class="op">$</span>j1b=<span class="ot">NULL</span>
-
-<span class="co"># combine the movers and stayers, ad stands for all data:</span>
-ad =<span class="st"> </span><span class="kw">list</span>(<span class="dt">sdata=</span>sdata,<span class="dt">jdata=</span>jdata)
-
-<span class="co"># plot firm size distribution</span>
+## 1 0.2353 0.1394 0.7423 0.1183 0.7891</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># plot firm size distribution</span>
 <span class="kw">ggplot</span>(ad<span class="op">$</span>sdata[,.N,f1],<span class="kw">aes</span>(<span class="dt">x=</span>N)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_histogram</span>(<span class="dt">binwidth=</span><span class="dv">1</span>) <span class="op">+</span><span class="st"> </span><span class="kw">theme_bw</span>()</code></pre></div>
 <p><img src="example_files/figure-html/unnamed-chunk-2-1.png" width="672"></p>
 </div>
@@ -124,19 +112,19 @@ ad =<span class="st"> </span><span class="kw">list</span>(<span class="dt">sdata
 <a href="#clustering-firms" class="anchor"></a>Clustering firms</h1>
 <p>We start by extracting the measures that will be used to cluster</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">ms    =<span class="st"> </span><span class="kw"><a href="../reference/grouping.getMeasures.html">grouping.getMeasures</a></span>(ad,<span class="st">"ecdf"</span>,<span class="dt">Nw=</span><span class="dv">20</span>,<span class="dt">y_var =</span> <span class="st">"y1"</span>)</code></pre></div>
-<pre><code>## INFO [2018-05-07 16:39:20] processing 3000 firms
-## INFO [2018-05-07 16:39:20] computing measures...
-## INFO [2018-05-07 16:39:20] computing weights...</code></pre>
+<pre><code>## INFO [2018-05-08 10:54:17] processing 3000 firms
+## INFO [2018-05-08 10:54:17] computing measures...
+## INFO [2018-05-08 10:54:17] computing weights...</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># then we group we choose k=10</span>
 grps  =<span class="st"> </span><span class="kw"><a href="../reference/grouping.classify.once.html">grouping.classify.once</a></span>(ms,<span class="dt">k =</span> <span class="dv">10</span>,<span class="dt">nstart =</span> <span class="dv">1000</span>,<span class="dt">iter.max =</span> <span class="dv">200</span>,<span class="dt">step=</span><span class="dv">250</span>)</code></pre></div>
-<pre><code>## INFO [2018-05-07 16:39:20] clustering T=101.015687, Nw=20 , measure=ecdf
-## INFO [2018-05-07 16:39:20] running weigthed kmeans step=250 total=1000
-## INFO [2018-05-07 16:39:20] nobs=3000 nmeasures=20
-## INFO [2018-05-07 16:39:21] [25%] tot=356.169194 best=356.169194 &lt;&lt;&lt;&lt;
-## INFO [2018-05-07 16:39:23] [50%] tot=356.169194 best=356.169194
-## INFO [2018-05-07 16:39:24] [75%] tot=356.169194 best=356.169194
-## INFO [2018-05-07 16:39:25] [100%] tot=356.169194 best=356.169194
-## INFO [2018-05-07 16:39:25] k=10 WSS=356.169194 nstart=1000 nfrims=3000</code></pre>
+<pre><code>## INFO [2018-05-08 10:54:17] clustering T=101.015687, Nw=20 , measure=ecdf
+## INFO [2018-05-08 10:54:17] running weigthed kmeans step=250 total=1000
+## INFO [2018-05-08 10:54:17] nobs=3000 nmeasures=20
+## INFO [2018-05-08 10:54:20] [25%] tot=358.144483 best=358.144483 &lt;&lt;&lt;&lt;
+## INFO [2018-05-08 10:54:22] [50%] tot=358.144483 best=358.144483
+## INFO [2018-05-08 10:54:24] [75%] tot=358.144483 best=358.144483
+## INFO [2018-05-08 10:54:25] [100%] tot=358.144483 best=358.144483
+## INFO [2018-05-08 10:54:25] k=10 WSS=358.144483 nstart=1000 nfrims=3000</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># finally we append the results to adata</span>
 ad   =<span class="st"> </span><span class="kw"><a href="../reference/grouping.append.html">grouping.append</a></span>(ad,grps<span class="op">$</span>best_cluster,<span class="dt">drop=</span>T)
 
@@ -151,11 +139,11 @@ ad   =<span class="st"> </span><span class="kw"><a href="../reference/grouping.a
 <a href="#estimating-the-model" class="anchor"></a>Estimating the model</h1>
 <p>This is a relatively old code, we will be pushing an update extremely soon!</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">res =<span class="st"> </span><span class="kw"><a href="../reference/m2.mini.estimate.html">m2.mini.estimate</a></span>(ad<span class="op">$</span>jdata,ad<span class="op">$</span>sdata,<span class="dt">model0 =</span> model,<span class="dt">method =</span> <span class="st">"fixb"</span>)</code></pre></div>
-<pre><code>## INFO [2018-05-07 16:39:26] computing var decomposition with ns=817438 nm=182560
+<pre><code>## INFO [2018-05-08 10:54:27] computing var decomposition with ns=817439 nm=182564
 ##   cor_kl cov_kl  var_k  var_l    rsq
-## 1 0.2406  0.141 0.7438 0.1153 0.7887</code></pre>
+## 1 0.2445 0.1416 0.7463 0.1122 0.7914</code></pre>
 <p><img src="example_files/figure-html/unnamed-chunk-4-1.png" width="672"></p>
-<pre><code>## cor with true model:0.961121</code></pre>
+<pre><code>## cor with true model:0.954619</code></pre>
 <p>We can show the decompositions next to each other:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="http://www.rdocumentation.org/packages/knitr/topics/kable">kable</a></span>(<span class="kw">rbind</span>(model<span class="op">$</span>vdec<span class="op">$</span>stats,res<span class="op">$</span>vdec<span class="op">$</span>stats),<span class="dt">digits =</span> <span class="dv">4</span>) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw"><a href="http://www.rdocumentation.org/packages/kableExtra/topics/kable_styling">kable_styling</a></span>(<span class="dt">bootstrap_options =</span> <span class="kw">c</span>(<span class="st">"striped"</span>, <span class="st">"bordered"</span>,<span class="st">"condensed"</span>), <span class="dt">full_width =</span> F)</code></pre></div>
@@ -177,42 +165,23 @@ var_l
 rsq
 </th>
 </tr></thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td style="text-align:left;">
-0.2352
+0.2445
 </td>
 <td style="text-align:left;">
-0.14
+0.1416
 </td>
 <td style="text-align:left;">
-0.7405
+0.7463
 </td>
 <td style="text-align:left;">
-0.1195
+0.1122
 </td>
 <td style="text-align:left;">
-0.7881
+0.7914
 </td>
-</tr>
-<tr>
-<td style="text-align:left;">
-0.2406
-</td>
-<td style="text-align:left;">
-0.141
-</td>
-<td style="text-align:left;">
-0.7438
-</td>
-<td style="text-align:left;">
-0.1153
-</td>
-<td style="text-align:left;">
-0.7887
-</td>
-</tr>
-</tbody>
+</tr></tbody>
 </table>
 <p>And we can plot the resulting wage, next to the true ones</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/m2.mini.plotw.html">m2.mini.plotw</a></span>(res)    <span class="op">+</span><span class="st"> </span><span class="kw">ggtitle</span>(<span class="st">"Estimated wages"</span>)</code></pre></div>
@@ -257,53 +226,36 @@ rsq
 <tbody>
 <tr>
 <td style="text-align:left;">
-0.2352
+0.2445
 </td>
 <td style="text-align:left;">
-0.14
+0.1416
 </td>
 <td style="text-align:left;">
-0.7405
+0.7463
 </td>
 <td style="text-align:left;">
-0.1195
+0.1122
 </td>
 <td style="text-align:left;">
-0.7881
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-0.2406
-</td>
-<td style="text-align:left;">
-0.141
-</td>
-<td style="text-align:left;">
-0.7438
-</td>
-<td style="text-align:left;">
-0.1153
-</td>
-<td style="text-align:left;">
-0.7887
+0.7914
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-0.2451
+0.2399
 </td>
 <td style="text-align:left;">
-0.1452
+0.1424
 </td>
 <td style="text-align:left;">
-0.7357
+0.7382
 </td>
 <td style="text-align:left;">
-0.1192
+0.1194
 </td>
 <td style="text-align:left;">
-0.7705
+0.7742
 </td>
 </tr>
 </tbody>

@@ -21,43 +21,39 @@ require(kableExtra)
 options(knitr.table.format = "html") 
 ```
 
+
 # Simulating a data set
+
+The interacted model has the following equations:
+
+$$  y_{it} = a_t(k_{it}) + b_t(k_{it}) \cdot \alpha_i + \epsilon_{it}$$
+where in the model we define the average worker quality conditional on a firm type:
+
+$$ \text{Em} =  E[ \alpha_i |k,t=1  ]  $$
+
+and the average wroker quality conditional on a job change:
+$$ \text{EEm} =  E[ \alpha_i |k_1{=}k,k_2{=}k',m{=}1  ]  $$
+
 
 ```{r}
 set.seed(324313)
 model = m2.mini.new(10,serial = F,fixb=T)
 
 # we set the parameters to something simple
-model$A1 = seq(0,2,l=model$nf)
-model$A2 = seq(0,2,l=model$nf)
-model$B1 = seq(1,2,l=model$nf) # adding complementarity
-model$B2 = seq(1,2,l=model$nf)
-model$Em = seq(0,1,l=model$nf) # adding sorting
+model$A1 = seq(0,2,l=model$nf) # setting increasing intercepts
+model$B1 = seq(1,2,l=model$nf) # adding complementarity (increasing interactions)
+model$Em = seq(0,1,l=model$nf) # adding sorting (mean type of workers is increasing in k)
 
+# we make the model stationary (same in both periods)
+model$A2 = model$A1
+model$B2 = model$B1
+
+# setting the number of movers and stayers 
 model$Ns   = array(300000/model$nf,model$nf)
 model$Nm   = 10*toeplitz(ceiling(seq(100,10,l=model$nf)))
-sdata = m2.mini.simulate.stayers(model,model$Ns)
-jdata = m2.mini.simulate.movers(model,model$Nm)
 
-# compute decomposition
-stayer_share = sum(model$Ns)/(sum(model$Ns)+sum(model$Nm))
-model$vdec   = m2.mini.vdec(model,1e6,stayer_share,"y1")
-
-# randomly assign firm IDs
-sdata <- sdata[,f1:=paste("F",j1 + model$nf*(sample.int(.N/100,.N,replace=T)-1),sep=""),j1]
-sdata <- sdata[,j1b:=j1]
-sdata <- sdata[,j1true := j1]
-jdata <- jdata[,j1true := j1][,j2true := j2]
-jdata <- jdata[,j1c:=j1]
-jdata <- jdata[,f1:=sample( unique(sdata[j1b==j1c,f1]) ,.N,replace=T),j1c]
-jdata <- jdata[,j2c:=j2]
-jdata <- jdata[,f2:=sample( unique(sdata[j1b==j2c,f1])  ,.N,replace=T),j2c]
-jdata$j2c=NULL
-jdata$j1c=NULL
-sdata$j1b=NULL
-
-# combine the movers and stayers, ad stands for all data:
-ad = list(sdata=sdata,jdata=jdata)
+# creating a simulated data set
+ad =  m2.mini.simulate(model)
 
 # plot firm size distribution
 ggplot(ad$sdata[,.N,f1],aes(x=N)) + geom_histogram(binwidth=1) + theme_bw()
@@ -106,10 +102,6 @@ And we can plot the resulting wage, next to the true ones
 m2.mini.plotw(res)    + ggtitle("Estimated wages")
 m2.mini.plotw(model)  + ggtitle("Model wages")
 ```
-
-
-
-
 
 ## Estimating using quasi-likelihood
 
