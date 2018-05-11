@@ -590,6 +590,14 @@ m2.mixt.estimate.all <- function(sim,nk=6,ctrl,cl=NA) {
   mm = mean(sdata$y1)
   ms = 2*sd(sdata$y1)
 
+  # check that sdata has an x column
+  if (!("x" %in% names(sdata))) {
+    flog.info("creating an x column in sdata and set it to 1")
+    sdata$x=1
+  } else if (length(unique(sdata$x)) >= 50 ) {
+    stop("likely too many values in the x column of sdata")
+  }
+
   nf = max(sdata$j1);
   model_start = m2.mixt.new(nk,nf)
 
