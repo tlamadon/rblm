@@ -8,14 +8,17 @@
 <title>Mixture model example • rblm</title>
 <!-- jquery --><script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script><!-- Font Awesome icons --><link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
-<!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../jquery.sticky-kit.min.js"></script><script src="../pkgdown.js"></script><!-- mathjax --><script src="https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><!--[if lt IE 9]>
+<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js" integrity="sha384-cV+rhyOuRHc9Ub/91rihWcGmMmCXDeksTtCihMupQHSsi8GIIRDG0ThDc3HGQFJ3" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
+<script src="../jquery.sticky-kit.min.js"></script><script src="../pkgdown.js"></script><meta property="og:title" content="Mixture model example">
+<meta property="og:description" content="">
+<meta name="twitter:card" content="summary">
+<!-- mathjax --><script src="https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]-->
 </head>
 <body>
-    <div class="container template-vignette">
+    <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
     <div class="navbar-header">
@@ -24,8 +27,12 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="../index.html">rblm</a>
+      <span class="navbar-brand">
+        <a class="navbar-link" href="../index.html">rblm</a>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">0.3</span>
+      </span>
     </div>
+
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
 <li>
@@ -45,10 +52,10 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
-      <a href="../articles/example_mixt.html">Mixture model example</a>
+      <a href="../articles/example.html">Interacted model example</a>
     </li>
     <li>
-      <a href="../articles/example.html">Interacted model example</a>
+      <a href="../articles/example_mixt.html">Mixture model example</a>
     </li>
   </ul>
 </li>
@@ -70,16 +77,19 @@
 
       
       </header><div class="row">
-  <div class="col-md-9">
+  <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1>Mixture model example</h1>
             
-            <h4 class="date">08 May, 2018</h4>
-          </div>
+            <h4 class="date">14 May, 2018</h4>
+      
+      <small class="dont-index">Source: <a href="https://github.com/tlamadon/rblm/blob/master/vignettes/example_mixt.Rmd"><code>vignettes/example_mixt.Rmd</code></a></small>
+      <div class="hidden name"><code>example_mixt.Rmd</code></div>
+
+    </div>
 
     
     
-<div class="contents">
 <p>Simulating and estimating the mixture model</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">require</span>(rblm)
 <span class="kw">require</span>(knitr)
@@ -113,7 +123,7 @@ ad =<span class="st">  </span><span class="kw"><a href="../reference/m2.mixt.sim
 
 <span class="co"># plot firm size distribution</span>
 <span class="kw">ggplot</span>(ad<span class="op">$</span>sdata[,.N,f1],<span class="kw">aes</span>(<span class="dt">x=</span>N)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_histogram</span>(<span class="dt">binwidth=</span><span class="dv">1</span>) <span class="op">+</span><span class="st"> </span><span class="kw">theme_bw</span>()</code></pre></div>
-<p><img src="example_mixt_files/figure-html/unnamed-chunk-2-1.png" width="672"></p>
+<p><img src="example_mixt_files/figure-html/unnamed-chunk-2-1.png" width="700"></p>
 </div>
 <div id="clustering-firms" class="section level1">
 <h1 class="hasAnchor">
@@ -124,30 +134,30 @@ ms    =<span class="st"> </span><span class="kw"><a href="../reference/grouping.
                              <span class="st">"ecdf"</span>,        <span class="co"># the type of moments to construct at the firm level</span>
                              <span class="dt">Nw=</span><span class="dv">10</span>,         <span class="co"># number of point of support to use for the method</span>
                              <span class="dt">y_var =</span> <span class="st">"y1"</span>)  <span class="co"># variable to use to construct moments</span></code></pre></div>
-<pre><code>## INFO [2018-05-08 15:26:43] processing 7500 firms
-## INFO [2018-05-08 15:26:43] computing measures...
-## INFO [2018-05-08 15:26:44] computing weights...</code></pre>
+<pre><code>## INFO [2018-05-14 18:38:50] processing 7500 firms
+## INFO [2018-05-14 18:38:50] computing measures...
+## INFO [2018-05-14 18:38:50] computing weights...</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># classify into groups</span>
 grps  =<span class="st"> </span><span class="kw"><a href="../reference/grouping.classify.once.html">grouping.classify.once</a></span>(ms,                  <span class="co"># input the measures to use</span>
                                <span class="dt">k =</span> <span class="dv">5</span>,               <span class="co"># number of groups</span>
                                <span class="dt">nstart =</span> <span class="dv">1000</span>,       <span class="co"># number of starting values for kmean</span>
                                <span class="dt">iter.max =</span> <span class="dv">200</span>,      <span class="co"># max number of iterations for each kmean</span>
                                <span class="dt">step=</span><span class="dv">250</span>)            <span class="co"># how often to show output</span></code></pre></div>
-<pre><code>## INFO [2018-05-08 15:26:44] clustering T=41.004107, Nw=10 , measure=ecdf
-## INFO [2018-05-08 15:26:44] running weigthed kmeans step=250 total=1000
-## INFO [2018-05-08 15:26:44] nobs=7500 nmeasures=10
-## INFO [2018-05-08 15:26:45] [25%] tot=844.071415 best=844.071415 &lt;&lt;&lt;&lt;
-## INFO [2018-05-08 15:26:46] [50%] tot=844.071415 best=844.071415
-## INFO [2018-05-08 15:26:47] [75%] tot=844.071415 best=844.071415
-## INFO [2018-05-08 15:26:48] [100%] tot=844.071415 best=844.071415
-## INFO [2018-05-08 15:26:48] k=5 WSS=844.071415 nstart=1000 nfrims=7500</code></pre>
+<pre><code>## INFO [2018-05-14 18:38:50] clustering T=41.004107, Nw=10 , measure=ecdf
+## INFO [2018-05-14 18:38:50] running weigthed kmeans step=250 total=1000
+## INFO [2018-05-14 18:38:50] nobs=7500 nmeasures=10
+## INFO [2018-05-14 18:38:52] [25%] tot=844.071415 best=844.071415 &lt;&lt;&lt;&lt;
+## INFO [2018-05-14 18:38:53] [50%] tot=844.071415 best=844.071415
+## INFO [2018-05-14 18:38:54] [75%] tot=844.071415 best=844.071415
+## INFO [2018-05-14 18:38:55] [100%] tot=844.071415 best=844.071415
+## INFO [2018-05-14 18:38:55] k=5 WSS=844.071415 nstart=1000 nfrims=7500</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># finally we append the results to adata</span>
 ad   =<span class="st"> </span><span class="kw"><a href="../reference/grouping.append.html">grouping.append</a></span>(ad,grps<span class="op">$</span>best_cluster,<span class="dt">drop=</span>T)
 
 <span class="co"># we can also check the classification</span>
 <span class="kw">ggplot</span>(ad<span class="op">$</span>sdata[,.N,<span class="kw">list</span>(j1,j1true)],<span class="kw">aes</span>(<span class="dt">x=</span>j1true,<span class="dt">y=</span>j1,<span class="dt">size=</span>N)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_point</span>() <span class="op">+</span><span class="st"> </span><span class="kw">theme_bw</span>() <span class="op">+</span>
 <span class="st">  </span><span class="kw">scale_x_continuous</span>(<span class="st">"true type"</span>) <span class="op">+</span><span class="st"> </span><span class="kw">scale_y_continuous</span>(<span class="st">"estimated group"</span>)</code></pre></div>
-<p><img src="example_mixt_files/figure-html/unnamed-chunk-3-1.png" width="672"></p>
+<p><img src="example_mixt_files/figure-html/unnamed-chunk-3-1.png" width="700"></p>
 <p>In the previous command we tell rblm that we want to use the firm specific empirical measure “ecdf” with 20 points of supports and that the dependent variable is “y1”. The firm identifier should be “f1”.</p>
 </div>
 <div id="estimating-the-model" class="section level1">
@@ -166,19 +176,19 @@ ctrl  =<span class="st"> </span><span class="kw"><a href="../reference/em.contro
 res =<span class="st"> </span><span class="kw"><a href="../reference/m2.mixt.estimate.all.html">m2.mixt.estimate.all</a></span>(<span class="dt">sim=</span>ad,         <span class="co"># the data</span>
                            <span class="dt">nk=</span>model<span class="op">$</span>nk,    <span class="co"># number of worker types (we use here the same as in simulation)</span>
                            <span class="dt">ctrl=</span>ctrl)      <span class="co"># parameters to control the EM</span></code></pre></div>
-<pre><code>## INFO [2018-05-08 15:26:59] [233][para0][final] lik=-1645.3951 dlik=9.7191e-08 liks=-1.6431e+03 likm=0.0000e+00
-## INFO [2018-05-08 15:26:59] starting repetitions with 1 nodes
-## INFO [2018-05-08 15:26:59] [ 31][paraf (1/2)][final] lik=-33198.5347 dlik=8.9609e-08 liks=-3.3194e+04 likm=0.0000e+00
-## INFO [2018-05-08 15:27:14] [358][para1 (1/2)][final] lik=-1644.9184 dlik=9.2612e-08 liks=-1.6426e+03 likm=0.0000e+00
-## INFO [2018-05-08 15:28:40] [2000][move1 (1/2)] lik=-208.8048 dlik=2.1403e-07 liks=-2.0761e+02 likm=0.0000e+00
-## INFO [2018-05-08 15:28:40] [2000][move1 (1/2)][final] lik=-208.8048 dlik=2.1403e-07 liks=-2.0761e+02 likm=0.0000e+00
-## INFO [2018-05-08 15:28:40] done with reptitions 1/2
-## INFO [2018-05-08 15:28:41] [ 13][paraf (2/2)][final] lik=-80230.6618 dlik=9.7492e-08 liks=-8.0227e+04 likm=0.0000e+00
-## INFO [2018-05-08 15:28:49] [186][para1 (2/2)][final] lik=-1799.6715 dlik=9.6416e-08 liks=-1.7975e+03 likm=0.0000e+00
-## INFO [2018-05-08 15:30:12] [1980][move1 (2/2)][final] lik=-523.4160 dlik=9.9798e-08 liks=-5.2195e+02 likm=0.0000e+00
-## INFO [2018-05-08 15:30:12] done with reptitions 2/2
-## INFO [2018-05-08 15:30:12] drawing 0.100000 from the stayers
-## INFO [2018-05-08 15:30:39] [1999][stayers] lik=1.5242e+03 inc=8.4762e-09 max-pchg=1.1677e-05 mean-pchg=1.5569e-06
+<pre><code>## INFO [2018-05-14 18:39:08] [233][para0][final] lik=-1645.3951 dlik=9.7191e-08 liks=-1.6431e+03 likm=0.0000e+00
+## INFO [2018-05-14 18:39:08] starting repetitions with 1 nodes
+## INFO [2018-05-14 18:39:09] [ 31][paraf (1/2)][final] lik=-33198.5347 dlik=8.9609e-08 liks=-3.3194e+04 likm=0.0000e+00
+## INFO [2018-05-14 18:39:26] [358][para1 (1/2)][final] lik=-1644.9184 dlik=9.2612e-08 liks=-1.6426e+03 likm=0.0000e+00
+## INFO [2018-05-14 18:40:56] [2000][move1 (1/2)] lik=-208.8048 dlik=2.1403e-07 liks=-2.0761e+02 likm=0.0000e+00
+## INFO [2018-05-14 18:40:56] [2000][move1 (1/2)][final] lik=-208.8048 dlik=2.1403e-07 liks=-2.0761e+02 likm=0.0000e+00
+## INFO [2018-05-14 18:40:56] done with reptitions 1/2
+## INFO [2018-05-14 18:40:57] [ 13][paraf (2/2)][final] lik=-80230.6618 dlik=9.7492e-08 liks=-8.0227e+04 likm=0.0000e+00
+## INFO [2018-05-14 18:41:05] [186][para1 (2/2)][final] lik=-1799.6715 dlik=9.6416e-08 liks=-1.7975e+03 likm=0.0000e+00
+## INFO [2018-05-14 18:42:30] [1980][move1 (2/2)][final] lik=-523.4160 dlik=9.9798e-08 liks=-5.2195e+02 likm=0.0000e+00
+## INFO [2018-05-14 18:42:30] done with reptitions 2/2
+## INFO [2018-05-14 18:42:30] drawing 0.100000 from the stayers
+## INFO [2018-05-14 18:42:56] [1999][stayers] lik=1.5242e+03 inc=8.4762e-09 max-pchg=1.1677e-05 mean-pchg=1.5569e-06
 ##   cor_kl cov_kl var_k var_l    rsq
 ## 1 0.2416  0.178 0.229 0.593 0.6711</code></pre>
 </div>
@@ -186,14 +196,13 @@ res =<span class="st"> </span><span class="kw"><a href="../reference/m2.mixt.est
 <h1 class="hasAnchor">
 <a href="#plotting-the-results" class="anchor"></a>Plotting the results</h1>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/m2.mixt.wplot.html">m2.mixt.wplot</a></span>(res<span class="op">$</span>model<span class="op">$</span>A1)</code></pre></div>
-<p><img src="example_mixt_files/figure-html/unnamed-chunk-5-1.png" width="672"></p>
+<p><img src="example_mixt_files/figure-html/unnamed-chunk-5-1.png" width="700"></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/m2.mixt.wplot.html">m2.mixt.wplot</a></span>(model<span class="op">$</span>A1)</code></pre></div>
-<p><img src="example_mixt_files/figure-html/unnamed-chunk-5-2.png" width="672"></p>
+<p><img src="example_mixt_files/figure-html/unnamed-chunk-5-2.png" width="700"></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/m2.mixt.pplot.html">m2.mixt.pplot</a></span>(res<span class="op">$</span>model<span class="op">$</span>pk0[<span class="dv">1</span>,,])</code></pre></div>
-<p><img src="example_mixt_files/figure-html/unnamed-chunk-5-3.png" width="672"></p>
+<p><img src="example_mixt_files/figure-html/unnamed-chunk-5-3.png" width="700"></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/m2.mixt.pplot.html">m2.mixt.pplot</a></span>(model<span class="op">$</span>pk0[<span class="dv">1</span>,,])</code></pre></div>
-<p><img src="example_mixt_files/figure-html/unnamed-chunk-5-4.png" width="672"></p>
-</div>
+<p><img src="example_mixt_files/figure-html/unnamed-chunk-5-4.png" width="700"></p>
 </div>
   </div>
 
@@ -218,11 +227,13 @@ res =<span class="st"> </span><span class="kw"><a href="../reference/m2.mixt.est
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="http://hadley.github.io/pkgdown/">pkgdown</a>.</p>
+  <p>Site built with <a href="http://pkgdown.r-lib.org/">pkgdown</a>.</p>
 </div>
 
       </footer>
 </div>
+
+  
 
   </body>
 </html>

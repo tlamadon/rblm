@@ -23,6 +23,7 @@ reference:
     contents:
       - m2.mixt.new
       - m2.mixt.simulate.sim
+      - em.control
       - m2.mixt.estimate.all
       - m2.mixt.vdec
       - m2.mixt.wplot

@@ -19,13 +19,24 @@ classification algorithm — grouping.getMeasures • rblm</title>
 <!-- Font Awesome icons -->
 <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
 
+<!-- clipboard.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js" integrity="sha384-cV+rhyOuRHc9Ub/91rihWcGmMmCXDeksTtCihMupQHSsi8GIIRDG0ThDc3HGQFJ3" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
 <script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
-  
-  
+
+
+
+<meta property="og:title" content="Extract the measurement matrix to be given to the
+classification algorithm — grouping.getMeasures" />
+
+<meta property="og:description" content="Extract the measurement matrix to be given to the
+classification algorithm" />
+<meta name="twitter:card" content="summary" />
+
+
 <!-- mathjax -->
 <script src='https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
 
@@ -48,8 +59,12 @@ classification algorithm — grouping.getMeasures • rblm</title>
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="../index.html">rblm</a>
+      <span class="navbar-brand">
+        <a class="navbar-link" href="../index.html">rblm</a>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">0.3</span>
+      </span>
     </div>
+
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
@@ -69,10 +84,10 @@ classification algorithm — grouping.getMeasures • rblm</title>
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/example_mixt.html">Mixture model example</a>
+      <a href="../articles/example.html">Interacted model example</a>
     </li>
     <li>
-      <a href="../articles/example.html">Interacted model example</a>
+      <a href="../articles/example_mixt.html">Mixture model example</a>
     </li>
   </ul>
 </li>
@@ -86,6 +101,7 @@ classification algorithm — grouping.getMeasures • rblm</title>
   </a>
 </li>
       </ul>
+      
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
@@ -93,17 +109,21 @@ classification algorithm — grouping.getMeasures • rblm</title>
       
       </header>
 
-      <div class="row">
+<div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Extract the measurement matrix to be given to the
 classification algorithm</h1>
+    <small class="dont-index">Source: <a href='https://github.com/tlamadon/rblm/blob/master/R/firm-clustering.R'><code>R/firm-clustering.R</code></a></small>
+    <div class="hidden name"><code>grouping.getMeasures.Rd</code></div>
     </div>
 
+    <div class="ref-description">
     
     <p>Extract the measurement matrix to be given to the
 classification algorithm</p>
     
+    </div>
 
     <pre class="usage"><span class='fu'>grouping.getMeasures</span>(<span class='no'>sim</span>, <span class='kw'>y_var</span> <span class='kw'>=</span> <span class='st'>"y1"</span>, <span class='kw'>measure</span> <span class='kw'>=</span> <span class='st'>"ecdf"</span>, <span class='kw'>Nw</span> <span class='kw'>=</span> <span class='fl'>40</span>,
   <span class='kw'>model</span> <span class='kw'>=</span> <span class='fl'>NA</span>, <span class='kw'>exclude_movers</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>user_fn</span> <span class='kw'>=</span> <span class='fl'>NA</span>)</pre>
@@ -124,11 +144,14 @@ classification algorithm</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="http://hadley.github.io/pkgdown/">pkgdown</a>.</p>
+  <p>Site built with <a href="http://pkgdown.r-lib.org/">pkgdown</a>.</p>
 </div>
 
       </footer>
    </div>
 
+  
+
   </body>
 </html>
+

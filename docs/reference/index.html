@@ -18,13 +18,19 @@
 <!-- Font Awesome icons -->
 <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
 
+<!-- clipboard.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js" integrity="sha384-cV+rhyOuRHc9Ub/91rihWcGmMmCXDeksTtCihMupQHSsi8GIIRDG0ThDc3HGQFJ3" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
 <script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
-  
-  
+
+
+
+<meta property="og:title" content="Function reference" />
+
+
 <!-- mathjax -->
 <script src='https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
 
@@ -47,8 +53,12 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="../index.html">rblm</a>
+      <span class="navbar-brand">
+        <a class="navbar-link" href="../index.html">rblm</a>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">0.3</span>
+      </span>
     </div>
+
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
@@ -68,10 +78,10 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/example_mixt.html">Mixture model example</a>
+      <a href="../articles/example.html">Interacted model example</a>
     </li>
     <li>
-      <a href="../articles/example.html">Interacted model example</a>
+      <a href="../articles/example_mixt.html">Mixture model example</a>
     </li>
   </ul>
 </li>
@@ -85,6 +95,7 @@
   </a>
 </li>
       </ul>
+      
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
@@ -92,160 +103,161 @@
       
       </header>
 
-      <div class="row">
-  <div class="col-md-9">
+<div class="row">
+  <div class="contents col-md-9">
     <div class="page-header">
-      <h1>
-        Reference
-        <small>version&nbsp;0.3</small>
-      </h1>
+      <h1>Reference</h1>
     </div>
 
-    <div class="contents">
-      <table class="ref-index">
+    <table class="ref-index">
 
-      <colgroup>
-        <col class="alias" />
-        <col class="title" />
-      </colgroup>
+    <colgroup>
+      <col class="alias" />
+      <col class="title" />
+    </colgroup>
 
-      <tbody>
-        <tr>
-          <th colspan="2">
-            <h2 id="section-clustering" class="hasAnchor"><a href="#section-clustering" class="anchor"></a>Clustering</h2>
-            <p class="section-desc"><p>Functions to compute the grouping on firms</p></p>
-          </th>
-        </tr>
-        <tr>
-          <!--  -->
-          <td>
-            <p><code><a href="grouping.getMeasures.html">grouping.getMeasures</a></code> </p>
-          </td>
-          <td><p>Extract the measurement matrix to be given to the
+    <tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-clustering" class="hasAnchor"><a href="#section-clustering" class="anchor"></a>Clustering</h2>
+          <p class="section-desc"><p>Functions to compute the grouping on firms</p></p>
+        </th>
+      </tr>
+      <tr>
+        <!--  -->
+        <td>
+          <p><code><a href="grouping.getMeasures.html">grouping.getMeasures()</a></code> </p>
+        </td>
+        <td><p>Extract the measurement matrix to be given to the
 classification algorithm</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="grouping.classify.html">grouping.classify</a></code> </p>
-          </td>
-          <td><p>clusters firms based on their cross-sectional wage distributions</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="grouping.classify.once.html">grouping.classify.once</a></code> </p>
-          </td>
-          <td><p>clusters firms based on their cross-sectional wage distributions</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="grouping.append.html">grouping.append</a></code> </p>
-          </td>
-          <td><p>Append result of a grouping to a data-set</p></td>
-        </tr>
-      </tbody><tbody>
-        <tr>
-          <th colspan="2">
-            <h2 id="section-estimating-interacted-model" class="hasAnchor"><a href="#section-estimating-interacted-model" class="anchor"></a>Estimating Interacted model</h2>
-            <p class="section-desc"><p>Functions to estimate the interacted model using the clustered data.</p></p>
-          </th>
-        </tr>
-        <tr>
-          <!--  -->
-          <td>
-            <p><code><a href="m2.mini.new.html">m2.mini.new</a></code> </p>
-          </td>
-          <td><p>Model creation</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="m2.mini.simulate.html">m2.mini.simulate</a></code> </p>
-          </td>
-          <td><p>simulate a dataset according to the model</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="m2.miniql.estimate.html">m2.miniql.estimate</a></code> </p>
-          </td>
-          <td><p>estimates interacted model using quasi-linkelood on the data moments</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="m2.mini.estimate.html">m2.mini.estimate</a></code> </p>
-          </td>
-          <td><p>estimates interacted model</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="m2.mini.plotw.html">m2.mini.plotw</a></code> </p>
-          </td>
-          <td><p>plotting mini model</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="m2.mini.vdec.html">m2.mini.vdec</a></code> </p>
-          </td>
-          <td><p>Computes the variance decomposition by simulation</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="m2.mini.impute.movers.html">m2.mini.impute.movers</a></code> </p>
-          </td>
-          <td><p>imputes data for movers according to the model. The results are stored in k_imp, y1_imp, y2_imp</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="m2.mini.impute.stayers.html">m2.mini.impute.stayers</a></code> </p>
-          </td>
-          <td><p>imputes data according to the model</p></td>
-        </tr>
-      </tbody><tbody>
-        <tr>
-          <th colspan="2">
-            <h2 id="section-estimating-mixture-model" class="hasAnchor"><a href="#section-estimating-mixture-model" class="anchor"></a>Estimating Mixture model</h2>
-            <p class="section-desc"><p>Functions to estimate the mixture model using the clustered data.</p></p>
-          </th>
-        </tr>
-        <tr>
-          <!--  -->
-          <td>
-            <p><code><a href="m2.mixt.new.html">m2.mixt.new</a></code> </p>
-          </td>
-          <td><p>create a random model for EM with
+      </tr><tr>
+        <!--  -->
+        <td>
+          <p><code><a href="grouping.classify.html">grouping.classify()</a></code> </p>
+        </td>
+        <td><p>clusters firms based on their cross-sectional wage distributions</p></td>
+      </tr><tr>
+        <!--  -->
+        <td>
+          <p><code><a href="grouping.classify.once.html">grouping.classify.once()</a></code> </p>
+        </td>
+        <td><p>clusters firms based on their cross-sectional wage distributions</p></td>
+      </tr><tr>
+        <!--  -->
+        <td>
+          <p><code><a href="grouping.append.html">grouping.append()</a></code> </p>
+        </td>
+        <td><p>Append result of a grouping to a data-set</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-estimating-interacted-model" class="hasAnchor"><a href="#section-estimating-interacted-model" class="anchor"></a>Estimating Interacted model</h2>
+          <p class="section-desc"><p>Functions to estimate the interacted model using the clustered data.</p></p>
+        </th>
+      </tr>
+      <tr>
+        <!--  -->
+        <td>
+          <p><code><a href="m2.mini.new.html">m2.mini.new()</a></code> </p>
+        </td>
+        <td><p>Model creation</p></td>
+      </tr><tr>
+        <!--  -->
+        <td>
+          <p><code><a href="m2.mini.simulate.html">m2.mini.simulate()</a></code> </p>
+        </td>
+        <td><p>simulate a dataset according to the model</p></td>
+      </tr><tr>
+        <!--  -->
+        <td>
+          <p><code><a href="m2.miniql.estimate.html">m2.miniql.estimate()</a></code> </p>
+        </td>
+        <td><p>estimates interacted model using quasi-linkelood on the data moments</p></td>
+      </tr><tr>
+        <!--  -->
+        <td>
+          <p><code><a href="m2.mini.estimate.html">m2.mini.estimate()</a></code> </p>
+        </td>
+        <td><p>estimates interacted model</p></td>
+      </tr><tr>
+        <!--  -->
+        <td>
+          <p><code><a href="m2.mini.plotw.html">m2.mini.plotw()</a></code> </p>
+        </td>
+        <td><p>plotting mini model</p></td>
+      </tr><tr>
+        <!--  -->
+        <td>
+          <p><code><a href="m2.mini.vdec.html">m2.mini.vdec()</a></code> </p>
+        </td>
+        <td><p>Computes the variance decomposition by simulation</p></td>
+      </tr><tr>
+        <!--  -->
+        <td>
+          <p><code><a href="m2.mini.impute.movers.html">m2.mini.impute.movers()</a></code> </p>
+        </td>
+        <td><p>imputes data for movers according to the model. The results are stored in k_imp, y1_imp, y2_imp</p></td>
+      </tr><tr>
+        <!--  -->
+        <td>
+          <p><code><a href="m2.mini.impute.stayers.html">m2.mini.impute.stayers()</a></code> </p>
+        </td>
+        <td><p>imputes data according to the model</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-estimating-mixture-model" class="hasAnchor"><a href="#section-estimating-mixture-model" class="anchor"></a>Estimating Mixture model</h2>
+          <p class="section-desc"><p>Functions to estimate the mixture model using the clustered data.</p></p>
+        </th>
+      </tr>
+      <tr>
+        <!--  -->
+        <td>
+          <p><code><a href="m2.mixt.new.html">m2.mixt.new()</a></code> </p>
+        </td>
+        <td><p>create a random model for EM with
 endogenous mobility with multinomial pr</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="m2.mixt.simulate.sim.html">m2.mixt.simulate.sim</a></code> </p>
-          </td>
-          <td><p>Simulates data (movers and stayers) and attached firms ids. Firms have all same expected size.</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="m2.mixt.estimate.all.html">m2.mixt.estimate.all</a></code> </p>
-          </td>
-          <td><p>Estimates the static mixture model on 2 periods</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="m2.mixt.vdec.html">m2.mixt.vdec</a></code> </p>
-          </td>
-          <td><p>Computes the variance decomposition by simulation</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="m2.mixt.wplot.html">m2.mixt.wplot</a></code> </p>
-          </td>
-          <td><p>plots the wages of a model</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="m2.mixt.pplot.html">m2.mixt.pplot</a></code> </p>
-          </td>
-          <td><p>plots the proportions of a model</p></td>
-        </tr>
-      </tbody>
-      </table>
-    </div>
+      </tr><tr>
+        <!--  -->
+        <td>
+          <p><code><a href="m2.mixt.simulate.sim.html">m2.mixt.simulate.sim()</a></code> </p>
+        </td>
+        <td><p>Simulates data (movers and stayers) and attached firms ids. Firms have all same expected size.</p></td>
+      </tr><tr>
+        <!--  -->
+        <td>
+          <p><code><a href="em.control.html">em.control()</a></code> </p>
+        </td>
+        <td><p>Create a control structure for running EM algorithms</p></td>
+      </tr><tr>
+        <!--  -->
+        <td>
+          <p><code><a href="m2.mixt.estimate.all.html">m2.mixt.estimate.all()</a></code> </p>
+        </td>
+        <td><p>Estimates the static mixture model on 2 periods</p></td>
+      </tr><tr>
+        <!--  -->
+        <td>
+          <p><code><a href="m2.mixt.vdec.html">m2.mixt.vdec()</a></code> </p>
+        </td>
+        <td><p>Computes the variance decomposition by simulation</p></td>
+      </tr><tr>
+        <!--  -->
+        <td>
+          <p><code><a href="m2.mixt.wplot.html">m2.mixt.wplot()</a></code> </p>
+        </td>
+        <td><p>plots the wages of a model</p></td>
+      </tr><tr>
+        <!--  -->
+        <td>
+          <p><code><a href="m2.mixt.pplot.html">m2.mixt.pplot()</a></code> </p>
+        </td>
+        <td><p>plots the proportions of a model</p></td>
+      </tr>
+    </tbody>
+    </table>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
@@ -264,11 +276,14 @@ endogenous mobility with multinomial pr</p></td>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="http://hadley.github.io/pkgdown/">pkgdown</a>.</p>
+  <p>Site built with <a href="http://pkgdown.r-lib.org/">pkgdown</a>.</p>
 </div>
 
       </footer>
    </div>
 
+  
+
   </body>
 </html>
+

@@ -18,13 +18,22 @@
 <!-- Font Awesome icons -->
 <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
 
+<!-- clipboard.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js" integrity="sha384-cV+rhyOuRHc9Ub/91rihWcGmMmCXDeksTtCihMupQHSsi8GIIRDG0ThDc3HGQFJ3" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
 <script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
-  
-  
+
+
+
+<meta property="og:title" content="Create a control structure for running EM algorithms — em.control" />
+
+<meta property="og:description" content="Create a control structure for running EM algorithms" />
+<meta name="twitter:card" content="summary" />
+
+
 <!-- mathjax -->
 <script src='https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
 
@@ -47,8 +56,12 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="../index.html">rblm</a>
+      <span class="navbar-brand">
+        <a class="navbar-link" href="../index.html">rblm</a>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">0.3</span>
+      </span>
     </div>
+
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
@@ -68,10 +81,10 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/example_mixt.html">Mixture model example</a>
+      <a href="../articles/example.html">Interacted model example</a>
     </li>
     <li>
-      <a href="../articles/example.html">Interacted model example</a>
+      <a href="../articles/example_mixt.html">Mixture model example</a>
     </li>
   </ul>
 </li>
@@ -85,6 +98,7 @@
   </a>
 </li>
       </ul>
+      
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
@@ -92,26 +106,161 @@
       
       </header>
 
-      <div class="row">
+<div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Create a control structure for running EM algorithms</h1>
+    <small class="dont-index">Source: <a href='https://github.com/tlamadon/rblm/blob/master/R/utils-em.R'><code>R/utils-em.R</code></a></small>
+    <div class="hidden name"><code>em.control.Rd</code></div>
     </div>
 
+    <div class="ref-description">
     
-    <p>fixb will make the interactions stationary
-fixm will keep the means fixed to the starting value
-stochastic=n will draw latent variables instead of computing all probabilities
-check_lik will compute H and Q function at every step, for each parameter update</p>
+    <p>Create a control structure for running EM algorithms</p>
     
+    </div>
 
     <pre class="usage"><span class='fu'>em.control</span>(<span class='kw'>ctrl</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)</pre>
-        
+    
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>nplot</th>
+      <td><p>how often to plot wages of comparaison to model0</p></td>
+    </tr>
+    <tr>
+      <th>ncat</th>
+      <td><p>how often to log information</p></td>
+    </tr>
+    <tr>
+      <th>maxiter</th>
+      <td><p>maximum number of iterations</p></td>
+    </tr>
+    <tr>
+      <th>model_var</th>
+      <td><p>whether to allow for flexible variance (default is TRUE)</p></td>
+    </tr>
+    <tr>
+      <th>est_Amb</th>
+      <td><p>TBD</p></td>
+    </tr>
+    <tr>
+      <th>cstr_type</th>
+      <td><p>defines the type of constraints on the means for estimation</p></td>
+    </tr>
+    <tr>
+      <th>cstr_val</th>
+      <td><p>TBD</p></td>
+    </tr>
+    <tr>
+      <th>tol</th>
+      <td><p>tolerance for stopping the EM</p></td>
+    </tr>
+    <tr>
+      <th>tau</th>
+      <td><p>posterior likelihood to use instead of computing them using initial parameters</p></td>
+    </tr>
+    <tr>
+      <th>model0</th>
+      <td><p>model to compare estimation to when plotting</p></td>
+    </tr>
+    <tr>
+      <th>presp=1e-9</th>
+      <td><p>TBD</p></td>
+    </tr>
+    <tr>
+      <th>rel_weight</th>
+      <td><p>setting a particular weight for stayers versus movers (default is 1)</p></td>
+    </tr>
+    <tr>
+      <th>est_rho</th>
+      <td><p>vector of TRUE/FALSE that states which rho should be estimated</p></td>
+    </tr>
+    <tr>
+      <th>rho_in_diff</th>
+      <td><p>whether to estimate rho in level of in differences</p></td>
+    </tr>
+    <tr>
+      <th>dprior</th>
+      <td><p>Dirichlet prior for proportions (default 1.01)</p></td>
+    </tr>
+    <tr>
+      <th>nfirms_to_update=10, </th>
+      <td><p>number firms to update in probabilistic approach</p></td>
+    </tr>
+    <tr>
+      <th>proba_include</th>
+      <td><p>what terms to include in the liklihood for probabilistic approach (default to = c(1,1,1,1))</p></td>
+    </tr>
+    <tr>
+      <th>check_lik</th>
+      <td><p>whether to check the likelihood at each updating parameter</p></td>
+    </tr>
+    <tr>
+      <th>stochastic</th>
+      <td><p>whether to use stochastic EM instead of straight EM</p></td>
+    </tr>
+    <tr>
+      <th>fixb</th>
+      <td><p>when TRUE, imposes fixed interactions in different time periods</p></td>
+    </tr>
+    <tr>
+      <th>fixm</th>
+      <td><p>when TRUE, levels are not updated, only variances and proportions</p></td>
+    </tr>
+    <tr>
+      <th>deps=1e-50</th>
+      <td><p>TBD</p></td>
+    </tr>
+    <tr>
+      <th>file_backup_prefix</th>
+      <td><p>TBD</p></td>
+    </tr>
+    <tr>
+      <th>sd_floor=</th>
+      <td><p>floor imposed on all standard deviations (default is 1e-10)</p></td>
+    </tr>
+    <tr>
+      <th>posterior_reg</th>
+      <td><p>term added to posterior probablities (this is to deal with numerical issues, default is 1e-9)</p></td>
+    </tr>
+    <tr>
+      <th>textapp</th>
+      <td><p>text to show in logging</p></td>
+    </tr>
+    <tr>
+      <th>sdata_subsample</th>
+      <td><p>share of the stayers to use in estimation</p></td>
+    </tr>
+    <tr>
+      <th>sdata_subredraw</th>
+      <td><p>whether to redraw the subsample of stayers</p></td>
+    </tr>
+    <tr>
+      <th>vdec_sim_size</th>
+      <td><p>size to use in simulation</p></td>
+    </tr>
+    <tr>
+      <th>stayer_weight</th>
+      <td><p>weight attributed to stayers in joint estimation</p></td>
+    </tr>
+    <tr>
+      <th>est_rep=</th>
+      <td><p>number of starting values for EM</p></td>
+    </tr>
+    <tr>
+      <th>est_nbest</th>
+      <td><p>number of best starting values to select from using connectedness</p></td>
+    </tr>
+    </table>
+    
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
+      <li><a href="#arguments">Arguments</a></li>
                 </ul>
 
   </div>
@@ -123,11 +272,14 @@ check_lik will compute H and Q function at every step, for each parameter update
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="http://hadley.github.io/pkgdown/">pkgdown</a>.</p>
+  <p>Site built with <a href="http://pkgdown.r-lib.org/">pkgdown</a>.</p>
 </div>
 
       </footer>
    </div>
 
+  
+
   </body>
 </html>
+
