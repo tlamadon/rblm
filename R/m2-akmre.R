@@ -1,5 +1,33 @@
 #' file to run AKM
 
+#' Function to create CSR sparse matrices
+#' @export
+sparseMatrix2 <- function(i,j,v,dim) {
+
+  A = matrix(1,2,2)
+  A = as.matrix.csr(A)
+
+  A@dimension = as.integer(dim)
+
+  # get the indices
+  dd = data.table(i=i,j=j,v=v)
+  setkey(dd,i,j)
+  dd[,c:=1:.N]
+
+  ia = dd[,.N,i]
+  # add empty rows
+  ia2 = rep(0,dim[1])
+  ia2[ia$i]=ia$N
+  ia = cumsum(ia2)
+  ia =c(ia,ia[length(ia)]+1)
+
+  A@ra = dd$v
+  A@ja = as.integer(dd$j)
+  A@ia = as.integer(ia)
+
+  return(A)
+}
+
 #' Compute the firm fix effects using the movers. This first
 #' extracts the largest connected set among the firms, then uses
 #' pairs in a sparse regression.
