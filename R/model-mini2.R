@@ -436,7 +436,7 @@ m2.mini.liml.int.prof <- function(Y1,Y2,J1,J2,norm=1) {
 #' all the Bs=1. This is like an AKM estimator.
 m2.mini.linear.int <- function(Y1,Y2,J1,J2,norm=1) {
 
-  L = max(J1)
+  L = max(c(J1,J2))
   N = length(Y1)
 
   # ----- prepare the different regressors ----- #

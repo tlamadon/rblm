@@ -397,3 +397,27 @@ grouping.append <- function(sim,clus,drop=F,sort=T){
 
   return(sim)
 }
+
+#' Gives their won cluster to firm with many movers
+#'
+#' @param clus a clustering result from the classify function
+#' @param sim a data set with jdata and sdata
+#'
+#' @export
+grouping.makefiner <- function(clus,sim,nm=30){
+
+  # we find firms with at least nm movers
+  large.firms = sim$jdata[,list(f1=c(f1,f2))][,.N,f1][N>=nm,f1]
+  cmax = max(max(clus))
+
+  flog.info("found %i firms to give their own cluster",length(large.firms))
+
+  if (length(large.firms)==0) return(clus);
+
+  for (i in 1:length(large.firms)) {
+    I = which(names(clus)==large.firms[[i]])
+    clus[[I]] = cmax+i
+  }
+
+  return(clus)
+}
