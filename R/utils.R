@@ -262,3 +262,31 @@ m2.mixt.pplot <- function(pk0) {
   dd = melt(pk0,c('l','k'))
   ggplot(dd,aes(x=factor(l),y=value,fill=factor(k))) + geom_bar(position="stack",stat = "identity") + theme_bw()
 }
+
+#' creates a matrix and fill it using a data.table
+#' in contrast to acast, it creates all rows and cols (even if there is not data)
+#' @export
+mcast <- function(dd,val,row,col,dim,fill=NA) {
+
+  M  = array(fill,dim)
+  ri = dd[, get(row)]
+  ci = dd[, get(col)]
+  vv = dd[, get(val)]
+  for (i in 1:max(ri)) {
+    I = which(ri==i)
+    M[i,ci[I]] = vv[I]
+  }
+  return(M)
+}
+
+#' creates a vector and fill it using a data.table
+#' in contrast to acast, it creates all elements
+#' @export
+vcast <- function(dd,val,index,size,fill=NA) {
+  V    = rep(fill,size)
+  I    = dd[, get(index)]
+  v    = dd[, get(val)]
+  V[I] = v
+  return(V)
+}
+

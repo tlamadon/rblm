@@ -585,7 +585,7 @@ m2.mini.estimate <- function(jdata,sdata,norm=1,model0=c(),method="ns",withx=FAL
 
   # ---------  use stayers to get E[alpha|l] ------------- #
   EEm = jdata[, (mean(y1)- rliml$A1[j1])/rliml$B1[j1] + (mean(y2)- rliml$A2[j2])/rliml$B2[j2] ,list(j1,j2)]
-  EEm = 0.5*acast(EEm,j1~j2,value.var="V1") # what do you think of this 0.5 right here?
+  EEm = 0.5*mcast(EEm,"V1","j1","j2",c(nf,nf),0) # what do you think of this 0.5 right here?
 
   if (!withx) {
     Em  = 0.5*( sdata[, (mean(y1)- rliml$A1[j1])/rliml$B1[j1],j1][order(j1),V1]  +
@@ -599,13 +599,13 @@ m2.mini.estimate <- function(jdata,sdata,norm=1,model0=c(),method="ns",withx=FAL
   # ---------- MOVERS: use covariance restrictions  -------------- #
   # we start by computing Var(Y1), Var(Y2) and Cov(Y1,Y2)
   setkey(jdata,j1,j2)
-  YY1 = c(acast(jdata[,mvar(y1),list(j1,j2)],j2~j1,fill = 0,value.var = "V1"))
-  YY2 = c(acast(jdata[,mcov(y1,y2),list(j1,j2)],j2~j1,fill = 0,value.var = "V1")) #jdata[,mcov(y1,y2),list(j1,j2)][,V1]
-  YY3 = c(acast(jdata[,mvar(y2),list(j1,j2)],j2~j1,fill = 0,value.var = "V1")) #jdata[,mvar(y2),list(j1,j2)][,V1]
+  YY1 = c(mcast(jdata[,mvar(y1),list(j1,j2)],"V1","j2","j1",c(nf,nf),0))
+  YY2 = c(mcast(jdata[,mcov(y1,y2),list(j1,j2)],"V1","j2","j1",c(nf,nf),0)) #jdata[,mcov(y1,y2),list(j1,j2)][,V1]
+  YY3 = c(mcast(jdata[,mvar(y2),list(j1,j2)],"V1","j2","j1",c(nf,nf),0)) #jdata[,mvar(y2),list(j1,j2)][,V1]
   XX1 = array(0,c(nf^2, nf^2 + 2*nf))
   XX2 = array(0,c(nf^2, nf^2 + 2*nf))
   XX3 = array(0,c(nf^2, nf^2 + 2*nf))
-  W = c(acast(jdata[,.N,list(j1,j2)],j2~j1,fill = 0,value.var = "N")) #jdata[,.N,list(j1,j2)][,N]
+  W = c(mcast(jdata[,.N,list(j1,j2)],"N","j2","j1",c(nf,nf),0)) #jdata[,.N,list(j1,j2)][,N]
 
   for (l1 in 1:nf) for (l2 in 1:nf) {
     ll = l2 + nf*(l1 -1)
@@ -622,7 +622,7 @@ m2.mini.estimate <- function(jdata,sdata,norm=1,model0=c(),method="ns",withx=FAL
     }
   }
 
-  Wm = acast(jdata[,.N,list(j1,j2)],j1~j2,value.var="N")
+  Wm = mcast(jdata[,.N,list(j1,j2)],"N","j1","j2",c(nf,nf),0)
   XX = rbind(XX1,XX2,XX3)
 
   res     = lm.wfitnn( XX, c(YY1,YY2,YY3), c(W,W,W))$solution
