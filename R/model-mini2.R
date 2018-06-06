@@ -569,7 +569,7 @@ m2.mini.estimate <- function(jdata,sdata,norm=1,model0=c(),method="ns",withx=FAL
 
   # --------- use LIML on movers to get A1,B1,A2,B2 ---------- #
   Y1=jdata$y1;Y2=jdata$y2;J1=jdata$j1;J2=jdata$j2;
-  nf = max(J1)
+  nf = max(c(J1,J2))
   if (method=="fixb") {
     rliml = m2.mini.liml.int.fixb(Y1,Y2,J1,J2,norm=norm)
   }  else if (method=="prof") {
