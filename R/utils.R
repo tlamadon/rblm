@@ -167,7 +167,6 @@ lm.wfitnn <- function(XX,YY,rw,floor = 0) {
   #fit      = qprog(Dq,dq,C1,C0)
   #fit$solution = as.numeric(fit$thetahat)
   fit      = solve.QP(Dq,dq,C1,C0)
-
   return(fit)
 }
 

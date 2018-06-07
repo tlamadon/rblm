@@ -462,6 +462,34 @@ m2.mini.linear.int <- function(Y1,Y2,J1,J2,norm=1) {
   return(list(A1=A1,A2=A2,B1=B1,B2=B2,b_liml=fit))
 }
 
+m2.mini.linear.int.stationary <- function(Y1,Y2,J1,J2,norm=1) {
+
+  L = max(c(J1,J2))
+  N = length(Y1)
+
+  # ----- prepare the different regressors ----- #
+  D1 = array(0,c(N,L))
+  I = (1:N) + N*(J1-1)
+  D1[I]=1
+  I = (1:N) + N*(J2-1)
+  D1[I]=D1[I] - 1
+
+  X = cbind(D1[,2:L])
+  fit = lm.fit(X,Y1-Y2)$coefficients
+
+  # --------- extract the interaction terms ---------- #
+  B2 = rep(1,L)
+  B1 = rep(1,L)
+  A1 = c(0,fit[1:(L-1)])
+  A2 = A1
+
+  if (any(is.na(A1*A2))) warnings("A1 or A2 contains NA values");
+  if (any(is.na(B1*B2))) warnings("B1 or B2 contains NA values");
+
+  return(list(A1=A1,A2=A2,B1=B1,B2=B2,b_liml=fit))
+}
+
+
 
 #' this function uses LIML to estimate a model with a given normalization
 #' and we want to do it in a non-stationary way.
@@ -576,6 +604,8 @@ m2.mini.estimate <- function(jdata,sdata,norm=1,model0=c(),method="ns",withx=FAL
     rliml = m2.mini.liml.int.prof(Y1,Y2,J1,J2,norm=norm)
   }  else if (method=="linear") {
     rliml = m2.mini.linear.int(Y1,Y2,J1,J2,norm=norm)
+  }  else if (method=="linear.ss") {
+    rliml = m2.mini.linear.int.stationary(Y1,Y2,J1,J2,norm=norm)
   } else {
     rliml = m2.mini.liml.int2(Y1,Y2,J1,J2,norm=norm)
   }
@@ -598,6 +628,7 @@ m2.mini.estimate <- function(jdata,sdata,norm=1,model0=c(),method="ns",withx=FAL
 
   # ---------- MOVERS: use covariance restrictions  -------------- #
   # we start by computing Var(Y1), Var(Y2) and Cov(Y1,Y2)
+  # we can only get this when there are at least 2 movers in the combination
   setkey(jdata,j1,j2)
   YY1 = c(mcast(jdata[,mvar(y1),list(j1,j2)],"V1","j2","j1",c(nf,nf),0))
   YY2 = c(mcast(jdata[,mcov(y1,y2),list(j1,j2)],"V1","j2","j1",c(nf,nf),0)) #jdata[,mcov(y1,y2),list(j1,j2)][,V1]
@@ -615,10 +646,13 @@ m2.mini.estimate <- function(jdata,sdata,norm=1,model0=c(),method="ns",withx=FAL
       XX2[ll,ll                 ] = B1[l1]*B2[l2]
       XX3[ll,ll                 ] = B2[l2]^2
       XX3[ll,nf^2 + nf + l2     ] = 1
-    } else {
-      XX1[ll,ll                 ] = 1
-      XX3[ll,ll                 ] = 1
-      W[ll]=0.1
+    } else { # force parameter to 0 when there is no info
+      XX1[ll,ll                 ] = 0.5 # make sure to force both to 0
+      XX3[ll,ll                 ] = 1.5 # make sure to force both to 0
+      XX2[ll,ll]                  = 1
+      XX1[ll,nf^2 + l1          ] = 1
+      XX3[ll,nf^2 + nf + l2     ] = 1
+      W[ll]=1e-6 # we use a very small weight, to make bias as small as possible
     }
   }
 
