@@ -20,18 +20,17 @@ test_that("testing trace code", {
 
   # clsutering
   ms    = grouping.getMeasures(ad,"ecdf",Nw=10,y_var = "y1")
-  # then we group we choose k=10
   grps  = grouping.classify.once(ms,k = 10,nstart = 1000,iter.max = 200,step=250)
-
-  # finally we append the results to adata
   ad   = grouping.append(ad,grps$best_cluster,drop=T)
 
-  acast(ad$jdata[,.N,list(j1,j2)],j1~j2,fill=0)
-  # remove all of a given cluster in period in jdata
-  ad$jdata[j1==4,j1:=5]
-
   # try the mini-model
-  res = m2.mini.estimate(ad$jdata,ad$sdata,model0 = model,method = "linear")
+  res = m2.mini.estimate(ad$jdata,ad$sdata,model0 = model,method = "linear.ss")
+
+  # testing the penalized AKM
+  for (lambda in 10^(-5:4)) {
+    m2.firmfe.pen(sim,mode,lambda=0.00001)
+  }
+  m2.trace.estimate(sim)
 
   expect_that(floor_base("year"), is_time("2009-01-01 00:00:00"))
 })

@@ -37,7 +37,8 @@ Depends:
     foreign,
     futile.logger,
     Hmisc,
-    plyr
+    plyr,
+    ggm
 Suggests:
     knitr,
     testthat
