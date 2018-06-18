@@ -289,3 +289,14 @@ vcast <- function(dd,val,index,size,fill=NA) {
   return(V)
 }
 
+#' Weighted covariance
+#' @export
+wt.cov <- function(x,y,w) {
+  w = w/sum(w)
+  m1 = sum(x*w)
+  v1 = sum((x-m1)^2*w)
+  m2 = sum(y*w)
+  v2 = sum((y-m2)^2*w)
+  cc = sum( (y-m2)*(x-m1)*w)
+  return(cc)
+}
