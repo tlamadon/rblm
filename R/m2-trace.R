@@ -102,11 +102,12 @@ m2.trace.estimate <- function(sim, model0=NA,hetero=FALSE) {
   setkey(jdata,f2)
   jdata[,f2i := fids[jdata,nfid]]
 
-  # extract size in stayers
-  fsize = rbind(sim$sdata[,list(y1,f1)],sim$jdata[,list(y1,f1)])[,.N,f1]
+  # extract size in stayers, and mean
+  fsize = rbind(sim$sdata[,list(y1,f1)],sim$jdata[,list(y1,f1)])[,list(N=.N,mw=mean(y1)),f1]
   setkey(fids,f1)
   setkey(fsize,f1)
   fids[,size := fsize[fids,N]]
+  fids[,mw   := fsize[fids,mw]]
   fids[is.na(size),size:=0] # pads missing size with 0
 
   # CONSTRUCT SPARSE DESIGN MATRIX + NORMALIZATION
@@ -181,6 +182,7 @@ m2.trace.estimate <- function(sim, model0=NA,hetero=FALSE) {
 
   res = list(fids=fids,eps_sd = sqrt(var_e), trace_correction = tr_correction, var_psi= var_psi_hat,tot=tot,btw=btw )
 }
+
 
 
 #' Ridge AKM
