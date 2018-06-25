@@ -300,3 +300,18 @@ wt.cov <- function(x,y,w) {
   cc = sum( (y-m2)*(x-m1)*w)
   return(cc)
 }
+
+
+#' Sparse colSums
+#' @export
+sColSums <- function(M) {
+  return(as.numeric((rep(1,dim(M)[1]) %*% M)))
+}
+
+#' Sparse rowSums
+#' @export
+sRowSums <- function(M) {
+  return(as.numeric(M %*% rep(1,dim(M)[2])))
+}
+
+

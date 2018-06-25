@@ -15,6 +15,52 @@ get.largest.conset.fid <- function(jdata) {
   return(cs[  set == cs.size$set[1]  , f1])
 }
 
+#' Extracts the largest leave-out connected set from data using f1,f2
+#' movers
+#' @export
+get.largest.leaveoutset.fid <- function(jdata) {
+
+  # we loop multiple times
+  for (rep in 1:20) {
+
+    # get the connected set
+    f1s   = get.largest.conset.fid(sim$jdata)
+    jdata = sim$jdata[f1%in%f1s][f2%in%f1s]
+
+    # remove firms with 1 mover
+    for (i in 1:10) {
+      f0s   = jdata[,list(f1=c(f1,f2),.N)][,.N,f1][N==1,f1]
+      if (length(f0s)==0)  break;
+      jdata = jdata[!f1%in%f0s][!f2%in%f0s]
+    }
+
+    # extract articulation firms
+    G   = graph(c(jdata[,rbind(f1,f2)]),directed = F)
+    L   = articulation.points(G)
+    L   = names(V(G))[L]
+
+    # for each articulation firm, check removing movers
+    bad_movers = c()
+    for (fi in L) {
+      # find edges for this firm
+      II1 = jdata[,list(1:.N,f1)][f1==fi,V1]
+      II2 = jdata[,list(1:.N,f2)][f2==fi,V1]
+      II = union(II1,II2)
+      II = setdiff(II,bad_movers)
+      for (i in II) {
+        Gsub = delete.edges(G, i)
+        ng = length( decompose.graph(Gsub) )
+        if (ng>1) bad_movers = c(bad_movers,i);
+      }
+    }
+
+    if (length(bad_movers)==0) break;
+    jdata = jdata[setdiff(1:.N,bad_movers)]
+  }
+
+  return(jdata)
+}
+
 
 #' create a model for testing trace estimation
 #' @export
@@ -87,12 +133,25 @@ m2.trace.simulate <- function(model) {
 #' @export
 m2.trace.estimate <- function(sim, model0=NA,hetero=FALSE) {
 
+  stats = list()
+  stats$hetero = hetero
+  stats$total_number_of_firms   = sim$jdata[,length(unique(f1,f2))]
+  stats$total_number_of_stayers = sim$sdata[,.N]
+  stats$total_number_of_movers  = sim$jdata[,.N]
+  stats$total_logwage_var       = var(c(sim$sdata$y1,sim$jdata$y1))
+  stats$total_btw_firm          = sim$sdata[,list(mean(y1),.N),f1][,wt.var(V1,N)]
+
   # EXTRACT CONNECTED SET
   jdata = sim$jdata
-  f1s   = get.largest.conset.fid(jdata)
-  flog.info("connected set %i/%i",length(f1s),length(unique(sim$sdata$f1)))
-
-  jdata = jdata[f1 %in% f1s][f2 %in% f1s]
+  if (hetero==F) {
+    f1s   = get.largest.conset.fid(jdata)
+    flog.info("connected set %i/%i",length(f1s),length(unique(sim$sdata$f1)))
+    jdata = jdata[f1 %in% f1s][f2 %in% f1s]
+  } else {
+    jdata = get.largest.leaveoutset.fid(jdata)
+    f1s = jdata[,unique(c(f1,f2))]
+    flog.info("leave-out connected set %i/%i",length(f1s),length(unique(sim$sdata$f1)))
+  }
 
   # index firms with integers
   fids = data.table(f1=f1s,nfid=1:length(f1s))
@@ -121,6 +180,12 @@ m2.trace.estimate <- function(sim, model0=NA,hetero=FALSE) {
   JJ = sparseMatrix2(1:N,dd$c1,dd$v1,c(N,nf)) + sparseMatrix2(1:N,dd$c2,dd$v2,c(N,nf))
   S  = fids[order(nfid),size]
 
+  stats$set_number_of_firms   = nf
+  stats$set_number_of_stayers = sum(S)-(N-1)
+  stats$set_number_of_movers  = N-1
+  stats$set_logwage_var       = var(c(sim$sdata[f1 %in% fids$f1,y1],sim$jdata$y1))
+  stats$total_btw_firm        = sim$sdata[f1 %in% fids$f1,list(mean(y1),.N),f1][,wt.var(V1,N)]
+
   # COMPUTE INVERSE OF DESIGN MATRIX
   M = SparseM::t(JJ) %*% JJ
   Minv = SparseM::solve(M,nnzlmax=1e8,tmpmax=1e8,nsubmax=1e8)
@@ -137,34 +202,31 @@ m2.trace.estimate <- function(sim, model0=NA,hetero=FALSE) {
   }
 
   # extract homoskedastic error
-  ff = nrow(sim$jdata)/(nrow(sim$jdata)-nf)
   var_e = var(E)*nrow(sim$jdata)/(nrow(sim$jdata)-nf)
-
+  stats$error_var_homo = var_e
 
   # COMPUTE THE TRACE FORMULA - USING THE WEIGHTING OF STAYERS
   tr_correction = var_e*( sum( SparseM::diag(Minv)*S )/sum(S) - sum( S* (Minv %*% rep(1/nf,nf)) )/(sum(S))  )
+  stats$trace_term_homo = tr_correction
 
   # heteroskedastic variance using BLM groups
   if (hetero==TRUE) {
-    jdata[, psi1 := psi[f1i]]
-    jdata[, psi2 := psi[f2i]]
 
-    R = array(0,c(nf,nf))
-    for (i1 in 1:10) for (i2 in 1:10) {
-      I = jdata[,list(V1=1:.N,j1,j2)][j1==i1 & j2==i2,V1] # select the rows associated with given (j1,j2)if
-      if (length(I)==0) next;
-      if (length(I)<5) {
-        R = R + var_e*SparseM::t(JJ[I,]) %*% JJ[I,]
-      } else {
-        n1 = length(I)
-        n2 = length(jdata[j1==i1 & j2==i2,unique(c(f1,f2))])
-        #flog.info("%i %i",n1,n2)
-        R = R + ff*jdata[j1==i1 & j2==i2,var( y2-psi2 - y1 + psi1)]*SparseM::t(JJ[I,]) %*% JJ[I,]
-      }
-    }
+    S2 = S/sum(S)
+    V  = Minv %*% SparseM::t(JJ)
+    # we construct a slightly different trace using esitmate of individual variance
+    # suing KKS.
+    P       = sColSums(SparseM::t(JJ) * V)
+    S_i     = as.numeric(dd$m1 * (dd$m1 - JJ%*%psi)/(1-P))
+    stats$error_var_hetero = mean(S_i)
 
-    M2 = Minv %*% R %*% Minv
-    tr_correction =  sum( SparseM::diag(M2)*S )/sum(S) - sum( S* (M2 %*% rep(1/nf,nf)) )/(sum(S))
+    # Finally we need to compute the full correction
+    B = as.numeric(sColSums(V *  diag(S2) %*% V) - sColSums(diag(S2) %*% V ) ^2)
+    tr_correction_hetero = sum( S_i * B)
+
+    flog.info("tr0=%f tr1=%f var0=%f var1=%f",tr_correction, tr_correction_hetero,var_e,mean(S_i))
+    tr_correction = tr_correction_hetero
+    stats$trace_term_hetero = tr_correction_hetero
   }
 
   # COMPUTE THE VARIANCE OF PSI
@@ -173,14 +235,17 @@ m2.trace.estimate <- function(sim, model0=NA,hetero=FALSE) {
   tot = sim$sdata[,var(y1)]
   btw = sim$sdata[,list(mean(y1),.N),f1][,wt.var(V1,N)]
 
+  stats$psi_var = fids[,wt.var(psi,size)]
+
   if (!any(is.na(model0))) {
     fids[, psi0 := psi0[nfid]]
-    flog.info("var_true=%f  var_akm=%f var2=%f trace=%f ", fids[,wt.var(psi0,S)], fids[,wt.var(psi,S)], fids[,wt.var(psi,S)]- tr_correction,tr_correction)
+    rm(psi0)
+    flog.info("var_true=%f  var_akm=%f var2=%f trace=%f ", fids[,wt.var(psi0,size)], fids[,wt.var(psi,size)], fids[,wt.var(psi,size)]- tr_correction,tr_correction)
   } else {
-    flog.info("tot=%f btwf=%f var_akm=%f var2=%f trace=%f ",tot,btw, fids[,wt.var(psi,S)], fids[,wt.var(psi,S)]- tr_correction,tr_correction)
+    flog.info("tot=%f btwf=%f var_akm=%f var2=%f trace=%f ",tot,btw, fids[,wt.var(psi,size)], fids[,wt.var(psi,size)]- tr_correction,tr_correction)
   }
 
-  res = list(fids=fids,eps_sd = sqrt(var_e), trace_correction = tr_correction, var_psi= var_psi_hat,tot=tot,btw=btw )
+  res = list(fids=fids,eps_sd = sqrt(var_e), var_psi= var_psi_hat, stats=stats)
 }
 
 
@@ -302,6 +367,46 @@ test.m2.trace <- function() {
     flog.info("var0=%f lambda=%f var_psi=%f mse0=%f",ff[,wt.var(psi,N)],lambda,ff[,wt.var(psi_hat,N)],ff[II,wt.mean((psi-psi_hat)^2,N)])
     dd = rbind(dd,data.frame(lambda=log(lambda)/log(10), var0=ff[,wt.var(psi,N)],var_ridge=ff[,wt.var(psi_hat,N)],mse=akm.ridge$mse))
   }
+
+  # KKS
+  S = runif(4)
+  S = S/sum(S)
+  M = spread(S,1,4)
+  (diag(4)-t(M) )%*% diag(S) %*% (diag(4) - M) - (diag(4)-t(M) ) %*% diag(S)
+
+  # computing the element of the trace of the within
+  nf = 5
+  nm = 10
+  V = matrix(runif(nf*nm),nf,nm)
+  S = runif(nf)
+  S = S/sum(S)
+
+  # exact formula
+  W = diag(nf) - spread(S,1,nf)
+  diag(t( W %*% V) %*% diag(S) %*% (W %*% V))
+
+  # efficient formula 1
+  colSums(V *  diag(S) %*% V) - colSums(V *  (spread(S,2,nf) %*% diag(S) %*% V))
+
+  # efficient formula 2
+  colSums(V *  diag(S) %*% V) - colSums( (diag(S) %*% V ) *  (spread(rep(1,length(S)),2,nf) %*% diag(S) %*% V))
+
+  # efficient formula 3
+  colSums(V *  diag(S) %*% V) - colSums(diag(S) %*% V ) ^2
+
+  # ---- ARTICULATION POINTS ------
+  model   = m2.trace.new(nf = 1000,nm = 2000,eps_sd=1.5)
+  sim     = m2.trace.simulate(model)
+  jdata   = get.largest.leaveoutset.fid(sim$jdata)
+
+  model   = m2.trace.new(nf = 1000,nm = 2000,eps_sd=1.5)
+  sim     = m2.trace.simulate(model)
+  res     = m2.trace.estimate(sim,model0=model,hetero=F)
+  res     = m2.trace.estimate(sim,model0=model,hetero=T)
+
+  sim$jdata   = get.largest.leaveoutset.fid(sim$jdata)
+  res     = m2.trace.estimate(sim,model0=model,hetero=F)
+  res     = m2.trace.estimate(sim,model0=model,hetero=T)
 
 }
 
