@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Creates a 4 period mini model. Can be set to be linear or not, with serial correlation or not — model.mini4.new • rblm</title>
+<title>Sparse rowSums — sRowSums • rblm</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -28,9 +28,9 @@
 
 
 
-<meta property="og:title" content="Creates a 4 period mini model. Can be set to be linear or not, with serial correlation or not — model.mini4.new" />
+<meta property="og:title" content="Sparse rowSums — sRowSums" />
 
-<meta property="og:description" content="Creates a 4 period mini model. Can be set to be linear or not, with serial correlation or not" />
+<meta property="og:description" content="Sparse rowSums" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -109,19 +109,18 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Creates a 4 period mini model. Can be set to be linear or not, with serial correlation or not</h1>
-    <small class="dont-index">Source: <a href='https://github.com/tlamadon/rblm/blob/master/R/model-mini4.R'><code>R/model-mini4.R</code></a></small>
-    <div class="hidden name"><code>model.mini4.new.Rd</code></div>
+    <h1>Sparse rowSums</h1>
+    <small class="dont-index">Source: <a href='https://github.com/tlamadon/rblm/blob/master/R/utils.R'><code>R/utils.R</code></a></small>
+    <div class="hidden name"><code>sRowSums.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>Creates a 4 period mini model. Can be set to be linear or not, with serial correlation or not</p>
+    <p>Sparse rowSums</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>model.mini4.new</span>(<span class='no'>nf</span>, <span class='kw'>linear</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>serial</span> <span class='kw'>=</span> <span class='no'>F</span>, <span class='kw'>r1</span> <span class='kw'>=</span> <span class='fl'>0.3</span> + <span class='fl'>0.6</span> * <span class='fu'>runif</span>(<span class='fl'>1</span>),
-  <span class='kw'>r4</span> <span class='kw'>=</span> <span class='fl'>0.3</span> + <span class='fl'>0.6</span> * <span class='fu'>runif</span>(<span class='fl'>1</span>), <span class='kw'>fixb</span> <span class='kw'>=</span> <span class='no'>F</span>, <span class='kw'>eps_sd_factor</span> <span class='kw'>=</span> <span class='fl'>1</span>)</pre>
+    <pre class="usage"><span class='fu'>sRowSums</span>(<span class='no'>M</span>)</pre>
         
 
   </div>
