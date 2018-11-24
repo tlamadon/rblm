@@ -595,6 +595,8 @@ m2.mini.nls.int2 <- function(Y1,Y2,J1,J2,norm=1,coarse=0,tik=0) {
 #' @export
 m2.mini.estimate <- function(jdata,sdata,norm=1,model0=c(),method="ns",withx=FALSE) {
 
+  flog.info("Beginning m2.mini.estimate with method %s",method)
+  
   # --------- use LIML on movers to get A1,B1,A2,B2 ---------- #
   Y1=jdata$y1;Y2=jdata$y2;J1=jdata$j1;J2=jdata$j2;
   nf = max(c(J1,J2))
@@ -613,6 +615,7 @@ m2.mini.estimate <- function(jdata,sdata,norm=1,model0=c(),method="ns",withx=FAL
   B2 = rliml$B2
   N = length(Y1)
 
+  flog.info("recovered firm specific parameters")
   # ---------  use stayers to get E[alpha|l] ------------- #
   EEm = jdata[, (mean(y1)- rliml$A1[j1])/rliml$B1[j1] + (mean(y2)- rliml$A2[j2])/rliml$B2[j2] ,list(j1,j2)]
   EEm = 0.5*mcast(EEm,"V1","j1","j2",c(nf,nf),0) # what do you think of this 0.5 right here?
