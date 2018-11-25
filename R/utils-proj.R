@@ -2,7 +2,7 @@
 #' with continuous worker hetergoneity
 #'
 #' @export
-lin.proja <- function(sdata,y_col="y",k_col="k",j_col="j") {
+lin.proja <- function(sdata,y_col="y",k_col="k",j_col="j",do_interacted_reg=1) {
   rr = list()
 
   sdata2 = copy(data.table(sdata))
@@ -19,8 +19,12 @@ lin.proja <- function(sdata,y_col="y",k_col="k",j_col="j") {
   rr$cc = sdata2[,cov.wt( data.frame(y_imp,k_hat,l_hat,res))$cov]
   rr$rsq1 = summary(fit)$r.squared
 
-  fit2 = lm(y_imp ~ 0+  k_imp:factor(j) + factor(j),sdata2)
-  rr$rsq2 = 1-mean(resid(fit2)^2)/var(sdata2$y_imp)
+  if (do_interacted_reg==1) {
+    fit2 = lm(y_imp ~ 0+  k_imp:factor(j) + factor(j),sdata2)
+    rr$rsq2 = 1-mean(resid(fit2)^2)/var(sdata2$y_imp)
+  } else {
+    rr$rsq2=NA
+  }
 
   get.stats <- function(cc) {
     r=list()

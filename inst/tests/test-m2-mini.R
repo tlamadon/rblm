@@ -21,7 +21,7 @@ test_that("mini model with lots of groups", {
   # clsutering
   ms    = grouping.getMeasures(ad,"ecdf",Nw=10,y_var = "y1")
   # then we group we choose k=10
-  grps  = grouping.classify.once(ms,k = 10,nstart = 1000,iter.max = 200,step=250)
+  grps  = grouping.classify.once(ms,k = 200,nstart = 1000,iter.max = 200,step=250)
 
   # finally we append the results to adata
   ad   = grouping.append(ad,grps$best_cluster,drop=T)
@@ -31,7 +31,7 @@ test_that("mini model with lots of groups", {
   ad$jdata[j1==4,j1:=5]
 
   # try the mini-model
-  res = m2.mini.estimate(ad$jdata,ad$sdata,model0 = model,method = "linear")
+  res = m2.mini.estimate(ad$jdata,ad$sdata,model0 = model,method = "linear.ss",bigk = 1)
 
   expect_that(floor_base("year"), is_time("2009-01-01 00:00:00"))
 })

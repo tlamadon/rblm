@@ -88,6 +88,7 @@ m2.mini.simulate <- function(model) {
   jdata$j2c=NULL
   jdata$j1c=NULL
   sdata$j1b=NULL
+  sdata$x=1
 
   # combine the movers and stayers, ad stands for all data:
   ad = list(sdata=sdata,jdata=jdata)
@@ -593,7 +594,7 @@ m2.mini.nls.int2 <- function(Y1,Y2,J1,J2,norm=1,coarse=0,tik=0) {
 #' to run an AKM type estimation
 #' @family step2 interacted
 #' @export
-m2.mini.estimate <- function(jdata,sdata,norm=1,model0=c(),method="ns",withx=FALSE) {
+m2.mini.estimate <- function(jdata,sdata,norm=1,model0=c(),method="ns",withx=FALSE,bigk=0) {
 
   flog.info("Beginning m2.mini.estimate with method %s",method)
 
@@ -633,43 +634,66 @@ m2.mini.estimate <- function(jdata,sdata,norm=1,model0=c(),method="ns",withx=FAL
   # we start by computing Var(Y1), Var(Y2) and Cov(Y1,Y2)
   # we can only get this when there are at least 2 movers in the combination
   flog.info("getting residual wage variances in movers")
-  setkey(jdata,j1,j2)
-  YY1 = c(mcast(jdata[,mvar(y1),list(j1,j2)],"V1","j2","j1",c(nf,nf),0))
-  YY2 = c(mcast(jdata[,mcov(y1,y2),list(j1,j2)],"V1","j2","j1",c(nf,nf),0)) #jdata[,mcov(y1,y2),list(j1,j2)][,V1]
-  YY3 = c(mcast(jdata[,mvar(y2),list(j1,j2)],"V1","j2","j1",c(nf,nf),0)) #jdata[,mvar(y2),list(j1,j2)][,V1]
-  XX1 = array(0,c(nf^2, nf^2 + 2*nf))
-  XX2 = array(0,c(nf^2, nf^2 + 2*nf))
-  XX3 = array(0,c(nf^2, nf^2 + 2*nf))
-  W = c(mcast(jdata[,.N,list(j1,j2)],"N","j2","j1",c(nf,nf),0)) #jdata[,.N,list(j1,j2)][,N]
+  if (bigk==0) {
+    setkey(jdata,j1,j2)
+    YY1 = c(mcast(jdata[,mvar(y1),list(j1,j2)],"V1","j2","j1",c(nf,nf),0))
+    YY2 = c(mcast(jdata[,mcov(y1,y2),list(j1,j2)],"V1","j2","j1",c(nf,nf),0)) #jdata[,mcov(y1,y2),list(j1,j2)][,V1]
+    YY3 = c(mcast(jdata[,mvar(y2),list(j1,j2)],"V1","j2","j1",c(nf,nf),0)) #jdata[,mvar(y2),list(j1,j2)][,V1]
+    XX1 = array(0,c(nf^2, nf^2 + 2*nf))
+    XX2 = array(0,c(nf^2, nf^2 + 2*nf))
+    XX3 = array(0,c(nf^2, nf^2 + 2*nf))
+    W = c(mcast(jdata[,.N,list(j1,j2)],"N","j2","j1",c(nf,nf),0)) #jdata[,.N,list(j1,j2)][,N]
 
-  for (l1 in 1:nf) for (l2 in 1:nf) {
-    ll = l2 + nf*(l1 -1)
-    if (W[ll]>0) {
-      XX1[ll,ll                 ] = B1[l1]^2
-      XX1[ll,nf^2 + l1          ] = 1
-      XX2[ll,ll                 ] = B1[l1]*B2[l2]
-      XX3[ll,ll                 ] = B2[l2]^2
-      XX3[ll,nf^2 + nf + l2     ] = 1
-    } else { # force parameter to 0 when there is no info
-      XX1[ll,ll                 ] = 0.5 # make sure to force both to 0
-      XX3[ll,ll                 ] = 1.5 # make sure to force both to 0
-      XX2[ll,ll]                  = 1
-      XX1[ll,nf^2 + l1          ] = 1
-      XX3[ll,nf^2 + nf + l2     ] = 1
-      W[ll]=1e-6 # we use a very small weight, to make bias as small as possible
+    for (l1 in 1:nf) for (l2 in 1:nf) {
+      ll = l2 + nf*(l1 -1)
+      if (W[ll]>0) {
+        XX1[ll,ll                 ] = B1[l1]^2
+        XX1[ll,nf^2 + l1          ] = 1
+        XX2[ll,ll                 ] = B1[l1]*B2[l2]
+        XX3[ll,ll                 ] = B2[l2]^2
+        XX3[ll,nf^2 + nf + l2     ] = 1
+      } else { # force parameter to 0 when there is no info
+        XX1[ll,ll                 ] = 0.5 # make sure to force both to 0
+        XX3[ll,ll                 ] = 1.5 # make sure to force both to 0
+        XX2[ll,ll]                  = 1
+        XX1[ll,nf^2 + l1          ] = 1
+        XX3[ll,nf^2 + nf + l2     ] = 1
+        W[ll]=1e-6 # we use a very small weight, to make bias as small as possible
+      }
+    }
+
+    Wm = mcast(jdata[,.N,list(j1,j2)],"N","j1","j2",c(nf,nf),0)
+    XX = rbind(XX1,XX2,XX3)
+
+    res     = lm.wfitnn( XX, c(YY1,YY2,YY3), c(W,W,W))$solution
+    EEsd    = t(sqrt(pmax(array((res)[1:nf^2],c(nf,nf)),0)))
+    eps1_sd = sqrt(pmax((res)[(nf^2+1):(nf^2+nf)],0))
+    eps2_sd = sqrt(pmax((res)[(nf^2+nf+1):(nf^2+2*nf)],0))
+    if (any(is.na(eps1_sd*eps2_sd))) warning("NAs in Var(nu1|k1,k2)")
+    if (any(is.na(EEsd))) warning("NAs in Var(alpha|k1,k2)")
+  } else {
+    # we use a simpler approach here, and we ignore the EEsd and focus on the
+    # eps_sd
+    YY1 = mcast(jdata[,mvar(y1),list(j1,j2)],"V1","j2","j1",c(nf,nf),0)
+    YY2 = mcast(jdata[,mcov(y1,y2),list(j1,j2)],"V1","j2","j1",c(nf,nf),0)
+    YY3 = mcast(jdata[,mvar(y2),list(j1,j2)],"V1","j2","j1",c(nf,nf),0)
+    Wm   = mcast(jdata[,.N,list(j1,j2)],"N","j2","j1",c(nf,nf),0)
+    EEsd = array(0,c(nf,nf))
+    eps1_sd = array(0,c(nf))
+    eps2_sd = array(0,c(nf))
+
+    for (l1 in 1:nf) {
+      v1      =  wt.mean( YY1[l1,] - rliml$B1[l1]/rliml$B2 * YY2[l1,], Wm[l1,] + 1e-10)
+      eps1_sd[l1] = sqrt(pmax(v1,0))
+      v2      =  wt.mean( YY3[,l1] - rliml$B2[l1]/rliml$B1 * YY2[,l1], Wm[,l1] + 1e-10)
+      eps2_sd[l1] = sqrt(pmax(v2,0))
+    }
+
+    for (l1 in 1:nf) for (l2 in 1:nf) {
+      v1 = 1/(rliml$B1[l1]*rliml$B2[l2]) * YY2[l1,l2]
+      EEsd[l1,l2] = sqrt(pmax(v1,0))
     }
   }
-
-  Wm = mcast(jdata[,.N,list(j1,j2)],"N","j1","j2",c(nf,nf),0)
-  XX = rbind(XX1,XX2,XX3)
-
-  res     = lm.wfitnn( XX, c(YY1,YY2,YY3), c(W,W,W))$solution
-  EEsd    = t(sqrt(pmax(array((res)[1:nf^2],c(nf,nf)),0)))
-  eps1_sd = sqrt(pmax((res)[(nf^2+1):(nf^2+nf)],0))
-  eps2_sd = sqrt(pmax((res)[(nf^2+nf+1):(nf^2+2*nf)],0))
-  if (any(is.na(eps1_sd*eps2_sd))) warning("NAs in Var(nu1|k1,k2)")
-  if (any(is.na(EEsd))) warning("NAs in Var(alpha|k1,k2)")
-
   # ---------- STAYERS: use covariance restrictions  -------------- #
   flog.info("getting residual wage variances in stayers")
   # function which computes the variance terms
@@ -710,7 +734,12 @@ m2.mini.estimate <- function(jdata,sdata,norm=1,model0=c(),method="ns",withx=FAL
   NNm[!is.finite(NNm)]=0
   NNs[!is.finite(NNs)]=0
   stayer_share = sum(NNs)/(sum(NNs)+sum(NNm))
-  model$vdec   = m2.mini.vdec(model,1e6,stayer_share,"y1")
+
+  if (bigk==0) {
+    model$vdec   = m2.mini.vdec(model,1e6,stayer_share,"y1",do_interacted_reg=1)
+  } else {
+    model$vdec   = m2.mini.vdec(model,1e6,stayer_share,"y1",do_interacted_reg=0)
+  }
 
   if (length(model0)>0) {
     rr = addmom(Em,model0$Em,"E(alpha|l1,l2)")
@@ -802,7 +831,7 @@ m2.mini.impute.movers <- function(model,jdatae) {
 
 #' Computes the variance decomposition by simulation
 #' @export
-m2.mini.vdec <- function(model,nsim,stayer_share=1,ydep="y1") {
+m2.mini.vdec <- function(model,nsim,stayer_share=1,ydep="y1",do_interacted_reg=1) {
 
   # simulate movers/stayers, and combine
   NNm = model$Nm
@@ -818,7 +847,7 @@ m2.mini.vdec <- function(model,nsim,stayer_share=1,ydep="y1") {
   sdata.sim = m2.mini.simulate.stayers(model,NNs)
   jdata.sim = m2.mini.simulate.movers(model,NNm)
   sdata.sim = rbind(sdata.sim[,list(j1,k=alpha,y1,y2)],jdata.sim[,list(j1,k=alpha,y1,y2)])
-  proj_unc  = lin.proja(sdata.sim,ydep,"k","j1");
+  proj_unc  = lin.proja(sdata.sim,ydep,"k","j1",do_interacted_reg=do_interacted_reg);
 
   return(proj_unc)
 }
