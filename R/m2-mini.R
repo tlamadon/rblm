@@ -634,15 +634,22 @@ m2.mini.estimate <- function(jdata,sdata,norm=1,model0=c(),method="ns",withx=FAL
   # we can only get this when there are at least 2 movers in the combination
   flog.info("getting residual wage variances in movers")
   setkey(jdata,j1,j2)
+  flog.info("check 1")
   YY1 = c(mcast(jdata[,mvar(y1),list(j1,j2)],"V1","j2","j1",c(nf,nf),0))
+  flog.info("check 2")
   YY2 = c(mcast(jdata[,mcov(y1,y2),list(j1,j2)],"V1","j2","j1",c(nf,nf),0)) #jdata[,mcov(y1,y2),list(j1,j2)][,V1]
+  flog.info("check 3")
   YY3 = c(mcast(jdata[,mvar(y2),list(j1,j2)],"V1","j2","j1",c(nf,nf),0)) #jdata[,mvar(y2),list(j1,j2)][,V1]
+  flog.info("check 4")
   XX1 = array(0,c(nf^2, nf^2 + 2*nf))
   XX2 = array(0,c(nf^2, nf^2 + 2*nf))
   XX3 = array(0,c(nf^2, nf^2 + 2*nf))
+  flog.info("check 5")
   W = c(mcast(jdata[,.N,list(j1,j2)],"N","j2","j1",c(nf,nf),0)) #jdata[,.N,list(j1,j2)][,N]
+  flog.info("check 6")
 
   for (l1 in 1:nf) for (l2 in 1:nf) {
+    flog.info("double looping %i and %i",l1,l2)
     ll = l2 + nf*(l1 -1)
     if (W[ll]>0) {
       XX1[ll,ll                 ] = B1[l1]^2
@@ -662,14 +669,17 @@ m2.mini.estimate <- function(jdata,sdata,norm=1,model0=c(),method="ns",withx=FAL
 
   Wm = mcast(jdata[,.N,list(j1,j2)],"N","j1","j2",c(nf,nf),0)
   XX = rbind(XX1,XX2,XX3)
+  flog.info("check 7")
 
   res     = lm.wfitnn( XX, c(YY1,YY2,YY3), c(W,W,W))$solution
+  flog.info("check 8")
   EEsd    = t(sqrt(pmax(array((res)[1:nf^2],c(nf,nf)),0)))
   eps1_sd = sqrt(pmax((res)[(nf^2+1):(nf^2+nf)],0))
   eps2_sd = sqrt(pmax((res)[(nf^2+nf+1):(nf^2+2*nf)],0))
   if (any(is.na(eps1_sd*eps2_sd))) warning("NAs in Var(nu1|k1,k2)")
   if (any(is.na(EEsd))) warning("NAs in Var(alpha|k1,k2)")
-
+  flog.info("check 9")
+  
   # ---------- STAYERS: use covariance restrictions  -------------- #
   flog.info("getting residual wage variances in stayers")
   # function which computes the variance terms
