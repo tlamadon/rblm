@@ -2,7 +2,7 @@
 
 R package for estimation of complementarities in models with two-sided heterogeneity. You can find documentation for the different functions here [rblm documentation](https://tlamadon.github.io/rblm/index.html).
 
-There is a simple example on simulated data here: [turorial](https://tlamadon.github.io/rblm/articles/example.html).
+There is a simple example on simulated data here: [tutorial](https://tlamadon.github.io/rblm/articles/example.html).
 
 Link to github repo: [github](https://github.com/tlamadon/rblm).
 
