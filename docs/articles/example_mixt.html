@@ -81,7 +81,7 @@
     <div class="page-header toc-ignore">
       <h1>Mixture model example</h1>
             
-            <h4 class="date">24 September, 2018</h4>
+            <h4 class="date">19 December, 2018</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/tlamadon/rblm/blob/master/vignettes/example_mixt.Rmd"><code>vignettes/example_mixt.Rmd</code></a></small>
       <div class="hidden name"><code>example_mixt.Rmd</code></div>
@@ -134,23 +134,23 @@ ms    =<span class="st"> </span><span class="kw"><a href="../reference/grouping.
                              <span class="st">"ecdf"</span>,        <span class="co"># the type of moments to construct at the firm level</span>
                              <span class="dt">Nw=</span><span class="dv">10</span>,         <span class="co"># number of point of support to use for the method</span>
                              <span class="dt">y_var =</span> <span class="st">"y1"</span>)  <span class="co"># variable to use to construct moments</span></code></pre></div>
-<pre><code>## INFO [2018-09-24 15:53:42] processing 7500 firms
-## INFO [2018-09-24 15:53:42] computing measures...
-## INFO [2018-09-24 15:53:42] computing weights...</code></pre>
+<pre><code>## INFO [2018-12-19 23:35:31] processing 7500 firms
+## INFO [2018-12-19 23:35:31] computing measures...
+## INFO [2018-12-19 23:35:32] computing weights...</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># classify into groups</span>
 grps  =<span class="st"> </span><span class="kw"><a href="../reference/grouping.classify.once.html">grouping.classify.once</a></span>(ms,                  <span class="co"># input the measures to use</span>
                                <span class="dt">k =</span> <span class="dv">5</span>,               <span class="co"># number of groups</span>
                                <span class="dt">nstart =</span> <span class="dv">1000</span>,       <span class="co"># number of starting values for kmean</span>
                                <span class="dt">iter.max =</span> <span class="dv">200</span>,      <span class="co"># max number of iterations for each kmean</span>
                                <span class="dt">step=</span><span class="dv">250</span>)            <span class="co"># how often to show output</span></code></pre></div>
-<pre><code>## INFO [2018-09-24 15:53:42] clustering T=41.004107, Nw=10 , measure=ecdf
-## INFO [2018-09-24 15:53:42] running weigthed kmeans step=250 total=1000
-## INFO [2018-09-24 15:53:42] nobs=7500 nmeasures=10
-## INFO [2018-09-24 15:53:43] [25%] tot=844.071415 best=844.071415 &lt;&lt;&lt;&lt;
-## INFO [2018-09-24 15:53:44] [50%] tot=844.071415 best=844.071415
-## INFO [2018-09-24 15:53:46] [75%] tot=844.071415 best=844.071415
-## INFO [2018-09-24 15:53:47] [100%] tot=844.071415 best=844.071415
-## INFO [2018-09-24 15:53:47] k=5 WSS=844.071415 nstart=1000 nfrims=7500</code></pre>
+<pre><code>## INFO [2018-12-19 23:35:32] clustering T=41.004107, Nw=10 , measure=ecdf
+## INFO [2018-12-19 23:35:32] running weigthed kmeans step=250 total=1000
+## INFO [2018-12-19 23:35:32] nobs=7500 nmeasures=10
+## INFO [2018-12-19 23:35:33] [25%] tot=844.071415 best=844.071415 &lt;&lt;&lt;&lt;
+## INFO [2018-12-19 23:35:34] [50%] tot=844.071415 best=844.071415
+## INFO [2018-12-19 23:35:35] [75%] tot=844.071415 best=844.071415
+## INFO [2018-12-19 23:35:36] [100%] tot=844.071415 best=844.071415
+## INFO [2018-12-19 23:35:36] k=5 WSS=844.071415 nstart=1000 nfrims=7500</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># finally we append the results to adata</span>
 ad   =<span class="st"> </span><span class="kw"><a href="../reference/grouping.append.html">grouping.append</a></span>(ad,grps<span class="op">$</span>best_cluster,<span class="dt">drop=</span>T)
 
@@ -176,19 +176,19 @@ ctrl  =<span class="st"> </span><span class="kw"><a href="../reference/em.contro
 res =<span class="st"> </span><span class="kw"><a href="../reference/m2.mixt.estimate.all.html">m2.mixt.estimate.all</a></span>(<span class="dt">sim=</span>ad,         <span class="co"># the data</span>
                            <span class="dt">nk=</span>model<span class="op">$</span>nk,    <span class="co"># number of worker types (we use here the same as in simulation)</span>
                            <span class="dt">ctrl=</span>ctrl)      <span class="co"># parameters to control the EM</span></code></pre></div>
-<pre><code>## INFO [2018-09-24 15:53:58] [233][para0][final] lik=-1645.3951 dlik=9.7191e-08 liks=-1.6431e+03 likm=0.0000e+00
-## INFO [2018-09-24 15:53:58] starting repetitions with 1 nodes
-## INFO [2018-09-24 15:53:59] [ 31][paraf (1/2)][final] lik=-33198.5347 dlik=8.9609e-08 liks=-3.3194e+04 likm=0.0000e+00
-## INFO [2018-09-24 15:54:14] [358][para1 (1/2)][final] lik=-1644.9184 dlik=9.2612e-08 liks=-1.6426e+03 likm=0.0000e+00
-## INFO [2018-09-24 15:55:37] [2000][move1 (1/2)] lik=-208.8048 dlik=2.1403e-07 liks=-2.0761e+02 likm=0.0000e+00
-## INFO [2018-09-24 15:55:37] [2000][move1 (1/2)][final] lik=-208.8048 dlik=2.1403e-07 liks=-2.0761e+02 likm=0.0000e+00
-## INFO [2018-09-24 15:55:37] done with reptitions 1/2
-## INFO [2018-09-24 15:55:37] [ 13][paraf (2/2)][final] lik=-80230.6618 dlik=9.7492e-08 liks=-8.0227e+04 likm=0.0000e+00
-## INFO [2018-09-24 15:55:45] [186][para1 (2/2)][final] lik=-1799.6715 dlik=9.6416e-08 liks=-1.7975e+03 likm=0.0000e+00
-## INFO [2018-09-24 15:57:06] [1980][move1 (2/2)][final] lik=-523.4160 dlik=9.9798e-08 liks=-5.2195e+02 likm=0.0000e+00
-## INFO [2018-09-24 15:57:06] done with reptitions 2/2
-## INFO [2018-09-24 15:57:06] drawing 0.100000 from the stayers
-## INFO [2018-09-24 15:57:36] [1999][stayers] lik=1.5242e+03 inc=8.4762e-09 max-pchg=1.1677e-05 mean-pchg=1.5569e-06
+<pre><code>## INFO [2018-12-19 23:35:49] [233][para0][final] lik=-1645.3951 dlik=9.7191e-08 liks=-1.6431e+03 likm=0.0000e+00
+## INFO [2018-12-19 23:35:49] starting repetitions with 1 nodes
+## INFO [2018-12-19 23:35:50] [ 31][paraf (1/2)][final] lik=-33198.5347 dlik=8.9609e-08 liks=-3.3194e+04 likm=0.0000e+00
+## INFO [2018-12-19 23:36:09] [358][para1 (1/2)][final] lik=-1644.9184 dlik=9.2612e-08 liks=-1.6426e+03 likm=0.0000e+00
+## INFO [2018-12-19 23:37:38] [2000][move1 (1/2)] lik=-208.8048 dlik=2.1403e-07 liks=-2.0761e+02 likm=0.0000e+00
+## INFO [2018-12-19 23:37:38] [2000][move1 (1/2)][final] lik=-208.8048 dlik=2.1403e-07 liks=-2.0761e+02 likm=0.0000e+00
+## INFO [2018-12-19 23:37:38] done with reptitions 1/2
+## INFO [2018-12-19 23:37:39] [ 13][paraf (2/2)][final] lik=-80230.6618 dlik=9.7492e-08 liks=-8.0227e+04 likm=0.0000e+00
+## INFO [2018-12-19 23:37:46] [186][para1 (2/2)][final] lik=-1799.6715 dlik=9.6416e-08 liks=-1.7975e+03 likm=0.0000e+00
+## INFO [2018-12-19 23:39:14] [1980][move1 (2/2)][final] lik=-523.4160 dlik=9.9798e-08 liks=-5.2195e+02 likm=0.0000e+00
+## INFO [2018-12-19 23:39:14] done with reptitions 2/2
+## INFO [2018-12-19 23:39:14] drawing 0.100000 from the stayers
+## INFO [2018-12-19 23:39:42] [1999][stayers] lik=1.5242e+03 inc=8.4762e-09 max-pchg=1.1677e-05 mean-pchg=1.5569e-06
 ##   cor_kl cov_kl var_k var_l    rsq
 ## 1 0.2416  0.178 0.229 0.593 0.6711</code></pre>
 </div>
