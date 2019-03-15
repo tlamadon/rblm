@@ -67,11 +67,13 @@ lm.wfitc <- function(XX,YY,rw,C1,C0,meq) {
 
 #' simulate a dataset according to the model
 #' @export
-m2.mini.simulate <- function(model) {
+m2.mini.simulate <- function(model,vdec=FALSE) {
 
   # compute decomposition
   stayer_share = sum(model$Ns)/(sum(model$Ns)+sum(model$Nm))
-  model$vdec   = m2.mini.vdec(model,1e6,stayer_share,"y1")
+  if (vdec) {
+    model$vdec   = m2.mini.vdec(model,1e6,stayer_share,"y1")
+  }
 
   sdata = m2.mini.simulate.stayers(model,model$Ns)
   jdata = m2.mini.simulate.movers(model,model$Nm)
@@ -594,12 +596,25 @@ m2.mini.nls.int2 <- function(Y1,Y2,J1,J2,norm=1,coarse=0,tik=0) {
 #' to run an AKM type estimation
 #' @family step2 interacted
 #' @export
-m2.mini.estimate <- function(jdata,sdata,norm=1,model0=c(),method="ns",withx=FALSE,bigk=0) {
+m2.mini.estimate <- function(jdata,sdata,norm=1,model0=c(),method="ns",withx=FALSE,bigk=0,msub=1) {
 
   flog.info("Beginning m2.mini.estimate with method %s",method)
 
   # --------- use LIML on movers to get A1,B1,A2,B2 ---------- #
   Y1=jdata$y1;Y2=jdata$y2;J1=jdata$j1;J2=jdata$j2;
+
+  # check if we want to subset
+  if (msub<1) {
+    td = data.table(Y1,Y2,J1,J2)
+    # we take mean within each pair, then we draw according to size
+    # to keep the weighting.
+    td = td[,list(Y1=mean(Y1),Y2=mean(Y2),.N),list(J1,J2)]
+    npairs = td[,.N]
+    td = td[,list(wid=1:ceiling(N*msub),Y1=Y1,Y2=Y2),list(J1,J2)]
+    flog.info("subsampled from %i down to %i (number of pairs:%i)",length(Y1),td[,.N],npairs)
+    Y1=td$Y1;Y2=td$Y2;J1=td$J1;J2=td$J2;
+  }
+
   nf = max(c(J1,J2))
   if (method=="fixb") {
     rliml = m2.mini.liml.int.fixb(Y1,Y2,J1,J2,norm=norm)
@@ -614,6 +629,9 @@ m2.mini.estimate <- function(jdata,sdata,norm=1,model0=c(),method="ns",withx=FAL
   }
   B1 = rliml$B1
   B2 = rliml$B2
+
+  # restart with the original data, in case (msub<1)
+  Y1=jdata$y1;Y2=jdata$y2;J1=jdata$j1;J2=jdata$j2;
   N = length(Y1)
 
   flog.info("getting worker compositions in movers")
