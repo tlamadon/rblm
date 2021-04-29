@@ -37,7 +37,6 @@ Depends:
     futile.logger,
     Hmisc,
     plyr,
-    ggm,
     rmutil
 Suggests:
     knitr,
