@@ -394,11 +394,15 @@ m2.mixt.movers <- function(jdatae,model,ctrl) {
         }
       }
 
+      print("here 1")
+
       WWT = WWT/sum(WWT)
       fit = slm.wfitc(XX,as.numeric(DYY),as.numeric(WWT),CS)$solution
       is  = 1
       A1  = t(rdim(fit[is:(is + nk*nf-1)],nk,nf)); is = is+nk*nf
       A2  = t(rdim(fit[is:(is + nk*nf-1)],nk,nf)); is = is+nk*nf
+
+      print("here 2")
 
       # compute the variances!!!!
       DYY_bar   = array(0,c(nk,nf,nf,2))

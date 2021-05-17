@@ -28,9 +28,9 @@ test_that("testing trace code", {
 
   # testing the penalized AKM
   for (lambda in 10^(-5:4)) {
-    m2.firmfe.pen(sim,mode,lambda=0.00001)
+    m2.firmfe.pen(ad,model,lambda=0.00001) # FIXME changed from m2.firmfe.pen(sim,mode,lambda=0.00001)
   }
-  m2.trace.estimate(sim)
+  m2.trace.estimate(ad) # FIXME changed from m2.trace.estimate(sim)
 
   expect_that(floor_base("year"), is_time("2009-01-01 00:00:00"))
 })
