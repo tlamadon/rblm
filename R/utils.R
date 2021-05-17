@@ -301,6 +301,22 @@ wt.cov <- function(x,y,w) {
   return(cc)
 }
 
+#' Weighted covariance
+#' @export
+wt.mean <- function(x,w) {
+  w = w/sum(w)
+  m1 = sum(x*w)
+  return(m1)
+}
+
+#' Weighted covariance
+#' @export
+wt.var <- function(x,w) {
+  w = w/sum(w)
+  m1 = sum(x*w)
+  v1 = sum((x-m1)^2*w)
+  return(v1)
+}
 
 #' Sparse colSums
 #' @export
