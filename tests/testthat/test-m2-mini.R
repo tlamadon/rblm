@@ -33,7 +33,8 @@
 #   # try the mini-model
 #   res = m2.mini.estimate(ad$jdata,ad$sdata,model0 = model,method = "prof",bigk = 1,msub=0.1)
 
-#   expect_that(floor_base("year"), is_time("2009-01-01 00:00:00"))
+#   expect_equal(0, 0)
+# #   expect_that(floor_base("year"), is_time("2009-01-01 00:00:00"))
 # })
 
 

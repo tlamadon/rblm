@@ -90,7 +90,7 @@ m2.fe.firms <-function(jdata,fix_sd=NA) {
 #' @export
 get.largest.conset <- function(jdata) {
   # combine th 2 directions
-  jdata2 = rBind(jdata[,list(j1,j2)],jdata[,list(j1=j2,j2=j1)])
+  jdata2 = rbind(jdata[,list(j1,j2)],jdata[,list(j1=j2,j2=j1)])
   AD = pmin(acast(jdata2[,.N,list(j1,j2)],value.var = "N",j1~j2,drop=FALSE,fill=0),1)
   # compute connected sets
   cs = conComp(AD,2)

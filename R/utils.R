@@ -289,6 +289,23 @@ vcast <- function(dd,val,index,size,fill=NA) {
   return(V)
 }
 
+#' Weighted mean
+#' @export
+wt.mean <- function(x,w) {
+  w = w/sum(w)
+  m1 = sum(x*w)
+  return(m1)
+}
+
+#' Weighted variance
+#' @export
+wt.var <- function(x,w) {
+  w = w/sum(w)
+  m1 = sum(x*w)
+  v1 = sum((x-m1)^2*w)
+  return(v1)
+}
+
 #' Weighted covariance
 #' @export
 wt.cov <- function(x,y,w) {
@@ -299,23 +316,6 @@ wt.cov <- function(x,y,w) {
   v2 = sum((y-m2)^2*w)
   cc = sum( (y-m2)*(x-m1)*w)
   return(cc)
-}
-
-#' Weighted covariance
-#' @export
-wt.mean <- function(x,w) {
-  w = w/sum(w)
-  m1 = sum(x*w)
-  return(m1)
-}
-
-#' Weighted covariance
-#' @export
-wt.var <- function(x,w) {
-  w = w/sum(w)
-  m1 = sum(x*w)
-  v1 = sum((x-m1)^2*w)
-  return(v1)
 }
 
 #' Sparse colSums

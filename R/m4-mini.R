@@ -446,7 +446,7 @@ model.mini2.liml.int <- function(Y1,Y2,J1,J2,norm=1,fixb=F,r1=0,r4=0,alpha=0) {
   lambdas = eigen(WW)$values
   lambda  = min(lambdas) - alpha/( length(Y) - dim(X1)[2] - dim(X2)[2])
 
-  XX = cBind(X1,X2)
+  XX = cbind(X1,X2)
   RR = (1-lambda)*t(XX) %*% XX + lambda * ( t(XX) %*% Z)  %*% solve( t(Z)  %*% Z  ) %*% ( t(Z) %*% XX)
   RY = (1-lambda)*t(XX) %*% Y  + lambda * ( t(XX) %*% Z)  %*% solve( t(Z)  %*% Z  ) %*% ( t(Z) %*% Y)
 

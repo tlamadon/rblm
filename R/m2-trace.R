@@ -5,7 +5,7 @@
 #' @export
 get.largest.conset.fid <- function(jdata) {
   # combine th 2 directions
-  jdata2 = rBind(jdata[,list(f1,f2)],jdata[,list(f1=f2,f2=f1)])
+  jdata2 = rbind(jdata[,list(f1,f2)],jdata[,list(f1=f2,f2=f1)])
   AD = pmin(acast(jdata2[,.N,list(f1,f2)],value.var = "N",f1~f2,drop=FALSE,fill=0),1)
   # compute connected sets
   cs = conComp(AD,2)

@@ -308,9 +308,9 @@ m2.mixt.movers <- function(jdatae,model,ctrl) {
   Dkj2f     = rep(1,nf) %x% diag(nf)  %x% diag(nk)            # A[k,l] coefficients for j2
 
   # regression matrix for the variance
-  XX = rBind(
-    cBind(    Dkj1f, 0*Dkj2f),
-    cBind(  0*Dkj1f,   Dkj2f)
+  XX = rbind(
+    cbind(    Dkj1f, 0*Dkj2f),
+    cbind(  0*Dkj1f,   Dkj2f)
   )
 
   ## --- prepare regressions covariates --- #

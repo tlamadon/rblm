@@ -119,7 +119,7 @@ cons.bind <- function(c1,c2) {
     I21 = 1:c2$meq; I22 = (c2$meq+1):length(c2$H)
   }
   
-  c1$C = rBind(c1$C[I11,],c2$C[I21,],c1$C[I12,],c2$C[I22,])
+  c1$C = rbind(c1$C[I11,],c2$C[I21,],c1$C[I12,],c2$C[I22,])
   c1$H = c(c1$H[I11],c2$H[I21],c1$H[I12],c2$H[I22])
   c1$meq = c1$meq + c2$meq
   return(c1)
@@ -127,7 +127,7 @@ cons.bind <- function(c1,c2) {
 
 # add right padding
 cons.pad <- function(c1,l,r) {
-  c1$C = cBind(matrix(0,dim(c1$C)[1],l),c1$C,matrix(0,dim(c1$C)[1],r))
+  c1$C = cbind(matrix(0,dim(c1$C)[1],l),c1$C,matrix(0,dim(c1$C)[1],r))
   return(c1)
 }
 
