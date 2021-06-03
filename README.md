@@ -16,7 +16,7 @@ To install directly the package, run the following:
     # use bioconductor to install graph library
     if (!requireNamespace("BiocManager", quietly = TRUE))
         install.packages("BiocManager")
-    BiocManager::install(version = "3.13")
+    BiocManager::install("graph")
     
     # finally install our package
     install_github("tlamadon/rblm")
