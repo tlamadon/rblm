@@ -38,7 +38,7 @@ Depends:
     Hmisc,
     plyr,
     rmutil,
-    ggm
+    graph
 Suggests:
     knitr,
     testthat
