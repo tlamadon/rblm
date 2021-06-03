@@ -21,7 +21,7 @@ test_that("testing EM algorithm Event Study", {
   # Estimate the model using the simulated mover data, and the truth as starting values
   # model_copy = duplicate(model, shallow=FALSE)
 
-  res = m2.mixt.movers(jdatae=jdata, model=model, ctrl=em.control(ctrl=NULL, maxiter=1, cstr_type="para", textapp="para0", fixb=F))
+  res = m2.mixt.movers(jdatae=jdata, model=model, ctrl=em.control(ctrl=NULL, maxiter=1, fixb=F))
   res_model = res$model
 
   expect_gt(mean((model$A1 - res_model$A1) ^ 2), 1e-20)
