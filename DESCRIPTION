@@ -14,6 +14,7 @@ Description: Estimates non parametric models of the labor market. See paper for
     more information.
 License: MIT
 LazyData: TRUE
+biocViews:
 Depends:
     R (>= 3.0.0),
     Matrix,
@@ -24,6 +25,7 @@ Depends:
     quantreg,
     ggplot2,
     nnls,
+    graph,
     data.table,
     FactoClass,
     lpSolve,
