@@ -76,7 +76,7 @@ hist2s <- function(Y1,Y2,wsup,h) {
 
 #' @export
 rdim <- function(A,...) {
-  dd <- list(...);
+  dd <- c(...);
   if (length(dd)==1) {
     dim(A)<-dd[[1]]
   } else {

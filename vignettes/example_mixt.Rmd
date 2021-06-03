@@ -17,7 +17,6 @@ Simulating and estimating the mixture model
 ```{r,message=FALSE,warning=FALSE}
 require(rblm)
 require(knitr)
-require(kableExtra)
 options(knitr.table.format = "html") 
 ```
 
