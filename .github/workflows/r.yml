@@ -20,5 +20,5 @@ jobs:
 
       - name: generate doc, runs test
         run: |
-          R -e "library(devtools); test(".")"
+          R -e "library(devtools); test('.')"
 
