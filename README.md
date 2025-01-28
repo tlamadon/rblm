@@ -14,7 +14,7 @@ Link to github repo: [github](https://github.com/tlamadon/rblm).
 To install directly the package, run the following:
 
     install.packages("devtools") # this is in case you do not have devtools already
-    library(devtoolls)
+    library(devtools)
     
     # install our package for the master branch
     install_github("tlamadon/rblm")
