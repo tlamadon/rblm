@@ -20,6 +20,9 @@ get.largest.conset.fid <- function(jdata) {
 #' @export
 get.largest.leaveoutset.fid <- function(jdata) {
 
+  stop("needs to be implemented using igraph")
+
+
   # we loop multiple times
   for (rep in 1:20) {
 
