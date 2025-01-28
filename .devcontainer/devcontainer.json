@@ -5,7 +5,9 @@
 	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
 	"image": "mcr.microsoft.com/devcontainers/base:jammy",
 	"features": {
-		"ghcr.io/rocker-org/devcontainer-features/r-rig:1": {}
+		"ghcr.io/rocker-org/devcontainer-features/r-rig:1": {
+			"installDevTools": true
+		}
 		// "ghcr.io/rocker-org/devcontainer-features/r-dependent-packages:0": {}
 	}
 
