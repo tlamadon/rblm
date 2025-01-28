@@ -32,16 +32,36 @@ jobs:
         with:
           r-version: ${{ matrix.r-version }}
 
-      - run: Rscript -e 'print("hello")'
-      
+      # Cache R package library
+      - name: Cache R packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.R/library
+          key: ${{ runner.os }}-R-${{ hashFiles('**/DESCRIPTION') }}
+          restore-keys: |
+            ${{ runner.os }}-R-
+  
+      # Install dependencies
       - name: Install dependencies
         run: |
-          install.packages(c("remotes", "rcmdcheck"))
-          remotes::install_deps(dependencies = TRUE)
-        shell: Rscript {0}
+          Rscript -e 'if (!requireNamespace("remotes", quietly = TRUE)) install.packages("remotes")'
+          Rscript -e 'remotes::install_deps(dependencies = TRUE)'
+
+      # Run your tests or build
+      - name: Run R script
+        run: |
+          Rscript -e 'devtools::check()'
+
+      # - run: Rscript -e 'print("hello")'
       
-      - name: Check
-        run: rcmdcheck::rcmdcheck(args = "--no-manual", error_on = "error")
-        shell: Rscript {0}
+      # - name: Install dependencies
+      #   run: |
+      #     install.packages(c("remotes", "rcmdcheck"))
+      #     remotes::install_deps(dependencies = TRUE)
+      #   shell: Rscript {0}
+      
+      # - name: Check
+      #   run: rcmdcheck::rcmdcheck(args = "--no-manual", error_on = "error")
+      #   shell: Rscript {0}
 
 
