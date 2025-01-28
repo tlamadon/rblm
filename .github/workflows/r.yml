@@ -13,12 +13,13 @@ jobs:
   R-CMD-check:
     runs-on: ubuntu-latest
     container: rocker/tidyverse
-    name: ${{ matrix.config.os }} (${{ matrix.config.r }})
-
+    name: isntall and test 
+    
     steps:
       - uses: actions/checkout@v4
 
       - name: generate doc, runs test
         run: |
+          R -e "library(devtools); install('.')"
           R -e "library(devtools); test('.')"
 
