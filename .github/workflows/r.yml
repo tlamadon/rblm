@@ -18,8 +18,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: generate doc, runs test
+      - name: install dependencies
         run: |
           R -e "library(devtools); install('.')"
+
+      - name: runs test
+        run: |
           R -e "library(devtools); test('.')"
 

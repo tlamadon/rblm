@@ -38,8 +38,7 @@ Depends:
     futile.logger,
     Hmisc,
     plyr,
-    rmutil,
-    graph
+    rmutil
 Suggests:
     knitr,
     testthat

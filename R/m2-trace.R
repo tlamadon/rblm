@@ -23,43 +23,43 @@ get.largest.leaveoutset.fid <- function(jdata) {
   stop("needs to be implemented using igraph")
 
 
-  # we loop multiple times
-  for (rep in 1:20) {
+  # # we loop multiple times
+  # for (rep in 1:20) {
 
-    # get the connected set
-    f1s   = get.largest.conset.fid(sim$jdata)
-    jdata = sim$jdata[f1%in%f1s][f2%in%f1s]
+  #   # get the connected set
+  #   f1s   = get.largest.conset.fid(sim$jdata)
+  #   jdata = sim$jdata[f1%in%f1s][f2%in%f1s]
 
-    # remove firms with 1 mover
-    for (i in 1:10) {
-      f0s   = jdata[,list(f1=c(f1,f2),.N)][,.N,f1][N==1,f1]
-      if (length(f0s)==0)  break;
-      jdata = jdata[!f1%in%f0s][!f2%in%f0s]
-    }
+  #   # remove firms with 1 mover
+  #   for (i in 1:10) {
+  #     f0s   = jdata[,list(f1=c(f1,f2),.N)][,.N,f1][N==1,f1]
+  #     if (length(f0s)==0)  break;
+  #     jdata = jdata[!f1%in%f0s][!f2%in%f0s]
+  #   }
 
-    # extract articulation firms
-    G   = graph(c(jdata[,rbind(f1,f2)]),directed = F)
-    L   = articulation.points(G)
-    L   = names(V(G))[L]
+  #   # extract articulation firms
+  #   G   = graph(c(jdata[,rbind(f1,f2)]),directed = F)
+  #   L   = articulation.points(G)
+  #   L   = names(V(G))[L]
 
-    # for each articulation firm, check removing movers
-    bad_movers = c()
-    for (fi in L) {
-      # find edges for this firm
-      II1 = jdata[,list(1:.N,f1)][f1==fi,V1]
-      II2 = jdata[,list(1:.N,f2)][f2==fi,V1]
-      II = union(II1,II2)
-      II = setdiff(II,bad_movers)
-      for (i in II) {
-        Gsub = delete.edges(G, i)
-        ng = length( decompose.graph(Gsub) )
-        if (ng>1) bad_movers = c(bad_movers,i);
-      }
-    }
+  #   # for each articulation firm, check removing movers
+  #   bad_movers = c()
+  #   for (fi in L) {
+  #     # find edges for this firm
+  #     II1 = jdata[,list(1:.N,f1)][f1==fi,V1]
+  #     II2 = jdata[,list(1:.N,f2)][f2==fi,V1]
+  #     II = union(II1,II2)
+  #     II = setdiff(II,bad_movers)
+  #     for (i in II) {
+  #       Gsub = delete.edges(G, i)
+  #       ng = length( decompose.graph(Gsub) )
+  #       if (ng>1) bad_movers = c(bad_movers,i);
+  #     }
+  #   }
 
-    if (length(bad_movers)==0) break;
-    jdata = jdata[setdiff(1:.N,bad_movers)]
-  }
+  #   if (length(bad_movers)==0) break;
+  #   jdata = jdata[setdiff(1:.N,bad_movers)]
+  # }
 
   return(jdata)
 }
