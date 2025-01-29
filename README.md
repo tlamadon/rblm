@@ -13,11 +13,11 @@ Link to github repo: [github](https://github.com/tlamadon/rblm).
 
 To install directly the package, run the following:
 
-    install.packages("devtools") # this is in case you do not have devtools already
-    library(devtools)
+    install.packages("pak", repos = sprintf("https://r-lib.github.io/p/pak/stable/%s/%s/%s", .Platform$pkgType, R.Version()$os, R.Version()$arch))
+    library(pak);
     
-    # install our package for the master branch
-    install_github("tlamadon/rblm")
+    # install our package for the main branch
+    pak::pkg_install("tlamadon/rblm")("tlamadon/rblm")
     
 ## Install from within package
     
