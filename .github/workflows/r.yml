@@ -18,6 +18,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: install lib dependency
+        run: apt install libglpk40
+        
       - name: install dependencies
         run: |
           R -e "library(devtools); install('.')"
