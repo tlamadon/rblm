@@ -1,6 +1,6 @@
 # rblm
 
-[![CircleCI](https://circleci.com/gh/tlamadon/rblm/tree/master.svg?style=shield)](https://circleci.com/gh/tlamadon/rblm/tree/master)
+[![Testing multiarch installation](https://github.com/tlamadon/rblm/actions/workflows/test-multiarch-install.yml/badge.svg)](https://github.com/tlamadon/rblm/actions/workflows/test-multiarch-install.yml)
 [![doc](https://img.shields.io/badge/doc-latest-blue)](https://tlamadon.github.io/rblm/index.html)
 
 R package for estimation of complementarities in models with two-sided heterogeneity. You can find documentation for the different functions here [rblm documentation](https://tlamadon.github.io/rblm/index.html).
