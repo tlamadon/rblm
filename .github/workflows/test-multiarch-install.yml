@@ -12,7 +12,7 @@ jobs:
       fail-fast: false  # Ensure all jobs in the matrix run even if one fails
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        r-version: ["4.1", "4.2"]  # Add or remove versions as needed
+        rversion: ["3.5.3", "4.4.2"]  # Add or remove versions as needed
 
     steps:
 
@@ -22,7 +22,7 @@ jobs:
 
     - uses: r-lib/actions/setup-r@v2
       with:
-        r-version: ${{r-version}} # The R version to download (if necessary) and use.
+        r-version: ${{rversion}} # The R version to download (if necessary) and use.
         
     - name: Install pak
       run: R -e 'install.packages("pak", repos = sprintf("https://r-lib.github.io/p/pak/stable/%s/%s/%s", .Platform$pkgType, R.Version()$os, R.Version()$arch))'
