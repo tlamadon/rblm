@@ -9,7 +9,7 @@ There is a simple example on simulated data here: [tutorial](https://tlamadon.gi
 
 Link to github repo: [github](https://github.com/tlamadon/rblm).
 
-## Install from github
+## Install from github using pak
 
 To install directly the package, run the following:
 
@@ -17,7 +17,7 @@ To install directly the package, run the following:
     library(pak);
     
     # install our package for the main branch
-    pak::pkg_install("tlamadon/rblm")("tlamadon/rblm")
+    pak::pkg_install("tlamadon/rblm")
     
 ## Install from within package
     
