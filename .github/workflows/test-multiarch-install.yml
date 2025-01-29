@@ -26,9 +26,11 @@ jobs:
         r-version: ${{ matrix.rversion }} # The R version to download (if necessary) and use.
         
     - name: Install pak
-      run: R -e 'install.packages("pak", repos = sprintf("https://r-lib.github.io/p/pak/stable/%s/%s/%s", .Platform$pkgType, R.Version()$os, R.Version()$arch))'
+      run: install.packages("pak", repos = sprintf("https://r-lib.github.io/p/pak/stable/%s/%s/%s", .Platform$pkgType, R.Version()$os, R.Version()$arch))
+      shell: Rscript {0}
 
     - name: Install rblm
-      run: R -e 'library(pak); pak::pkg_install(".")'
+      run: library(pak); pak::pkg_install(".")
+      shell: Rscript {0}
 
       
