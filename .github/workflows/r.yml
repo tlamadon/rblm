@@ -18,12 +18,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: install lib dependency
-        run: apt install libglpk-dev
+      # - name: install lib dependency
+      #   run: apt install libglpk-dev
+
+      - name: install pak
+        run: R -e 'install.packages("pak", repos = sprintf("https://r-lib.github.io/p/pak/stable/%s/%s/%s", .Platform$pkgType, R.Version()$os, R.Version()$arch))'
         
       - name: install dependencies
         run: |
-          R -e "library(devtools); install('.')"
+          R -e "library(pak); pak::local_install_deps()"
 
       - name: runs test
         run: |
