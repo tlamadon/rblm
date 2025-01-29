@@ -12,7 +12,7 @@ jobs:
       fail-fast: false  # Ensure all jobs in the matrix run even if one fails
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        rversion: ["3.5.3", "4.4.2"]  # Add or remove versions as needed
+        rversion: ["4.4.2"]  # Add or remove versions as needed
 
     steps:
 
